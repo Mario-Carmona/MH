@@ -179,6 +179,8 @@ double busquedaLocal_PM(set<int> *Sel, vector<int> *noSeleccionados, const vecto
         }
 
         if(mejorado) {
+            // Se va para atras porque al comprobar la condicción del for se le hace un ++
+            --j;
             Int(Sel, &minContriIt, &minContri, noSeleccionados, j, distancias, &contri);
 
             terminado = false;
