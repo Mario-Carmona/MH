@@ -1,9 +1,9 @@
 /**
- * @file BL_PM.cpp
+ * @file BL_M.cpp
  * @author Mario Carmona Segovia (mcs2000carmona@correo.ugr.es)
  * @brief 
  * @version 0.1
- * @date 2021-03-19
+ * @date 2021-03-20
  * 
  * @copyright Copyright (c) 2021
  * 
@@ -16,7 +16,7 @@
 using namespace std;
 
 
-double busquedaLocal_PM(SetInt *Sel, VecInt *noSeleccionados, const MatDouble *distancias) {
+double busquedaLocal_M(SetInt *Sel, VecInt *noSeleccionados, const MatDouble *distancias) {
 
     bool terminado = false;
     int iteraciones = 0;
@@ -38,19 +38,32 @@ double busquedaLocal_PM(SetInt *Sel, VecInt *noSeleccionados, const MatDouble *d
         
         bool mejorado = false;
         terminado = true;
-        VecIntIt j;
+        VecIntIt mejor_j = noSeleccionados->end();
+        double mejor_coste = 0.0;
+        double new_coste;
 
         shuffle(noSeleccionados);
 
-        for(j = noSeleccionados->begin(); j != noSeleccionados->end() && !mejorado; ++j) {
+        for(VecIntIt j = noSeleccionados->begin(); j != noSeleccionados->end() && !mejorado; ++j) {
             
-            mejorado = funcion_obj_facto(Sel, distancias, minContriIt, j, &coste_actual);
+            mejorado = funcion_obj_facto(Sel, distancias, minContriIt, j, coste_actual, &new_coste);
+
+            if(mejorado) {
+                if(mejor_j == noSeleccionados->end()) {
+                    mejor_j = j;
+                    mejor_coste = new_coste;
+                }
+                else if(new_coste > mejor_coste) {
+                    mejor_j = j;
+                    mejor_coste = new_coste;
+                }
+            }
         }
 
-        if(mejorado) {
-            // Se va para atras porque al comprobar la condicción del for se le hace un ++
-            --j;
-            Int(Sel, &minContriIt, &minContri, noSeleccionados, j, distancias, &contri);
+        if(mejor_j != noSeleccionados->end()) {
+            coste_actual = mejor_coste;
+
+            Int(Sel, &minContriIt, &minContri, noSeleccionados, mejor_j, distancias, &contri);
 
             terminado = false;
         }
@@ -92,7 +105,7 @@ int main(int argc, char* argv[]) {
 
     start_timers();
 
-    double coste_final = busquedaLocal_PM(&Sel, &noSeleccionados, &distancias);
+    double coste_final = busquedaLocal_M(&Sel, &noSeleccionados, &distancias);
 
     auto tiempo_ejec = elapsed_time();
 

@@ -1,28 +1,44 @@
 .PHONY: clean
 
+# Carpetas
 BIN = bin
 OBJ = obj
 INC = include
 SRC = src
-DOC = doc
+TABLAS = tablas
 
+# Extensión de ficheros fuente
 CPP = cpp
+C = c
 
-SOURCES = $(wildcard $(SRC)/*.$(CPP))
-OBJS = $(addprefix $(OBJ)/, $(notdir $(SOURCES:.$(CPP)=.o)))
-
-TARGET = BL_PM
-      
-CPPFLAGS = -Wall -fmax-errors=2 -g -I$(INC)
-
+# Compilador
 CXX= g++
 
-all: directorios $(BIN)/$(TARGET) 
-	./$(BIN)/$(TARGET) 0 ./data/MDG-a_1_n500_m50.txt
+# Ficheros fuente
+SOURCES_AUX = funciones_aux timer
+
+# Ficheros objeto
+OBJS_AUX = $(addsuffix .o, $(addprefix $(OBJ)/, $(SOURCES_AUX)))
+
+# Ficheros ejecutables
+TARGET = BL_PM BL_M Greedy
+
+# Opciones de compilación
+CPPFLAGS_DEBUG = -Wall -fmax-errors=2 -O0 -g -I$(INC)
+CPPFLAGS = -O2 -I$(INC)
+
+
+
+all: ejecutables debug 
+
+ejecutables: directorios $(addprefix $(BIN)/, $(TARGET))
+
+debug: directorios $(addprefix $(BIN)/, $(addsuffix _debug, $(TARGET)))
+
 
 ## Creación de directorios ##
 
-directorios: ./$(BIN) ./$(OBJ)
+directorios: ./$(BIN) ./$(OBJ) ./$(TABLAS)
 
 ./$(BIN):
 	~Creando $@...
@@ -32,41 +48,59 @@ directorios: ./$(BIN) ./$(OBJ)
 	~Creando $@...
 	@mkdir ./$(OBJ)
 
-./$(DOC):
+./$(TABLAS):
 	~Creando $@...
-	@mkdir ./$(DOC)
+	@mkdir ./$(TABLAS)
+
 
 ## Compilación ##
 
-$(BIN)/$(TARGET): $(OBJS)
+# Creación de ejecutables
+
+$(BIN)/%: $(OBJ)/%.o $(OBJS_AUX)
 	@echo ~Creando $@...
-	@$(CXX) $(OBJS) $(CPPFLAGS) -o $@
+	@$(CXX) $^ $(CPPFLAGS) -o $@
+
+
+# Creación de ejecutables para depurar
+
+$(BIN)/%_debug: $(OBJ)/%.o $(OBJS_AUX)
+	@echo ~Creando $@...
+	@$(CXX) $^ $(CPPFLAGS_DEBUG) -o $@
+	
+
+# Creación de los ficheros objeto
 
 $(OBJ)/%.o: $(SRC)/%.$(CPP)
 	@echo ~Creando $@...
 	@$(CXX) -c $< $(CPPFLAGS) -o $@ 
 
-## Documentación ##
+$(OBJ)/%.o: $(SRC)/%.$(C)
+	@echo ~Creando $@...
+	@$(CXX) -c $< $(CPPFLAGS) -o $@ 
 
-documentacion: clean_docu ./$(DOC)
-	#doxywizard
-	@doxygen Doxyfile
-	@ln -s $(DOC)/html/index.html Practica3\ -\ Doxygen.html
+
+# Ejecución del script de tiempos
+tiempos: ejecutables
+	@chmod +x ./script_tiempos.sh
+	@./script_tiempos.sh
+
+
+# Borrar tablas
+clean_tablas:
+	@rm -rf $(TABLAS)/*.csv
+
 
 ## Crear comprimido ##
 
-zip: clean_all
+zip: clean
 	@echo ~Creando .zip
-	@rm -rf ./$(DOC)
 	@zip -r Practica3.zip ./*
 
-## Borrar ##
 
-clean_docu:
-	@rm -rf Practica3\ -\ Doxygen.html
-	@rm -rf $(DOC)/*
+## Borrar ##
 
 clean:
 	@rm -rf $(OBJ)/*.o $(BIN)/*
 
-clean_all: clean clean_docu
+
