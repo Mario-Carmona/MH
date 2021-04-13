@@ -17,121 +17,66 @@
 using namespace std;
 
 
-SetIntIt elegirSig(SetInt* Sel, SetInt* noSeleccionados, const MatDouble* distancias) {
-    VecDouble distMin(Sel->size(), MAXFLOAT);
-    vector<SetIntIt> distMinIt(Sel->size());
-    int contador_i = 0;
+/**
+ * @brief Función que calcula la diversidad de una solución obtenida
+ *        mediante el algoritmo Greedy.
+ * 
+ * @param Solucion Solución inicial
+ * @param noSeleccionados Lista de elementos no seleccionados para la solución
+ * @param distancias Matriz de distancias entre cada par de elementos
+ * @param numElemSelec Número de elementos que debe tener la solucións
+ * @return double Diversidad de la solución final
+ */
+double Greedy(SetInt *Solucion, SetInt *noSeleccionados, const MatDouble *distancias, int numElemSelec) {
 
-    for(auto i = Sel->begin(); i != Sel->end(); ++i, ++contador_i) {
-        for(auto j = noSeleccionados->begin(); j != noSeleccionados->end(); ++j) {
-            double dist;
-            if(*i < *j) {
-                dist = (*distancias)[*i][*j-*i-1];
-            }
-            else {
-                dist = (*distancias)[*j][*i-*j-1];
-            }
-
-            if(distMin[contador_i] > dist){
-                distMin[contador_i] = dist;
-                distMinIt[contador_i] = j;
-            }
-        }
-    }
-
-    double max_dist = -1;
-    SetIntIt it = noSeleccionados->end();
-    contador_i = 0;
-
-    for(auto i = Sel->begin(); i != Sel->end(); ++i, ++contador_i){
-        if(max_dist < distMin[contador_i]) {
-            max_dist = distMin[contador_i];
-            it = distMinIt[contador_i];
-        }
-    }
-
-    return it;
-}
-
-SetIntIt calcularDistAcu(SetInt* noSeleccionados, const MatDouble* distancias) {
-    VecDouble distAcu(noSeleccionados->size(), 0.0);
-    int contador_i = 0;
-    
-    for(auto i = noSeleccionados->begin(); i != --noSeleccionados->end(); ++i, ++contador_i) {
-        int contador_j = contador_i+1;
-        auto j = i;
-        ++j;
-        for(; j != noSeleccionados->end(); ++j, ++contador_j) {
-            double dist;
-            if(*i < *j) {
-                dist += (*distancias)[*i][*j-*i-1];
-            }
-            else {
-                dist += (*distancias)[*j][*i-*j-1];
-            }
-
-            distAcu[contador_i] += dist;
-            distAcu[contador_j] += dist;
-        }
-    }
-
-    double max_dist = 0.0;
-    SetIntIt it = noSeleccionados->end();
-    contador_i = 0;
-
-    for(auto i = noSeleccionados->begin(); i != noSeleccionados->end(); ++i, ++contador_i){
-        if(max_dist < distAcu[contador_i]) {
-            max_dist = distAcu[contador_i];
-            it = i;
-        }
-    } 
-
-    return it;
-}
-
-
-double Greedy(SetInt *Sel, SetInt *noSeleccionados, const MatDouble *distancias, int numElemSelec) {
-
-    VecDouble distAcu;
-
+    // Se elige el elemento no seleccionado que tenga una mayor distancia acumulada
     SetIntIt elegido = calcularDistAcu(noSeleccionados, distancias);
     
-    Sel->insert(Sel->end(), *elegido);
+    Solucion->insert(*elegido);
     noSeleccionados->erase(elegido);
 
-    while(Sel->size() < numElemSelec) {
-        elegido = elegirSig(Sel, noSeleccionados, distancias);
+    while(Solucion->size() < numElemSelec) {
+        // Se elige el elemento que tenga la máxima distancia de entre las
+        // distancias mínimas entre los elementos de la solución y los
+        // elementos no seleccionados
+        elegido = elegirSig(Solucion, noSeleccionados, distancias);
 
-        Sel->insert(Sel->end(), *elegido);
+        Solucion->insert(*elegido);
         noSeleccionados->erase(elegido);
     }
 
-    return funcion_obj(Sel, distancias);
+    return funcion_obj(Solucion, distancias);
 }
 
 
 int main(int argc, char* argv[]) {
 
+    if(argc != 3) {
+        cout << "Nº de argumentos incorrecto" << endl;
+        return -1;
+    }
+
     // Semilla
     int seed = atoi(argv[1]);
 
+    // Fichero con los datos de entrada
     char* fichero = argv[2];
 
     int numElemSelec;
-
     MatDouble distancias;
 
+    // Obtenemos los datos de entrada
     leerArchivo(fichero, numElemSelec, distancias);
 
-    SetInt Sel, noSeleccionados;
+    SetInt SoluIni, noSeleccionados;
 
     for(int i = 0; i < (int)distancias.size()+1; ++i) {
-        noSeleccionados.insert(noSeleccionados.end(), i);
+        noSeleccionados.insert(i);
     }
 
     start_timers();
 
-    double coste_final = Greedy(&Sel, &noSeleccionados, &distancias, numElemSelec);
+    double coste_final = Greedy(&SoluIni, &noSeleccionados, &distancias, numElemSelec);
 
     auto tiempo_ejec = elapsed_time();
 

@@ -5,15 +5,15 @@ Uso:  script_tiempos <nombre_algoritmo> → sólo un algoritmo
       script_tiempos → todos los algoritmos"
 
 
-# Comprobar parámetros
+## Comprobar parámetros ##
+# Si no se ponen argumentos
 if [[ $# -eq 0 ]]; 
 then
     # Obtener todos los nombres de los algoritmos
-    #nombre_archivos=$(ls ./bin/ | awk '!/_debug/ {print $1}')
     nombre_archivos=( $(ls ./bin/ | awk '!/_debug/ {print $1}') )
-elif [[ $# -eq 1 ]];
+elif [[ $# -eq 1 ]]; # Si se pone un argumento
 then
-    # Verificar su el nombre del algoritmo es correcto
+    # Verificar si el nombre del algoritmo es correcto
     if [ -f ./bin/$1 ];
     then
         nombre_archivos=( $1 )
@@ -23,7 +23,7 @@ else
 fi
 
 
-#data=$(ls ./data/ | awk '{print $1}')
+# Nombre de los ficheros de datos, en el orden en que aparecen en la tabla
 data=( "MDG-a_1_n500_m50" "MDG-a_2_n500_m50" "MDG-a_3_n500_m50" "MDG-a_4_n500_m50" 
 "MDG-a_5_n500_m50" "MDG-a_6_n500_m50" "MDG-a_7_n500_m50" "MDG-a_8_n500_m50" 
 "MDG-a_9_n500_m50" "MDG-a_10_n500_m50" "MDG-b_21_n2000_m200" "MDG-b_22_n2000_m200"
@@ -33,8 +33,8 @@ data=( "MDG-a_1_n500_m50" "MDG-a_2_n500_m50" "MDG-a_3_n500_m50" "MDG-a_4_n500_m5
 "MDG-c_10_n3000_m400" "MDG-c_13_n3000_m500" "MDG-c_14_n3000_m500" "MDG-c_15_n3000_m500"
 "MDG-c_19_n3000_m600" "MDG-c_20_n3000_m600" )
 
-contador=0
 
+contador=0
 for nombre in "${nombre_archivos[@]}"
 do
     echo "Proceso: ${contador} de ${#nombre_archivos[@]}"
@@ -68,6 +68,7 @@ do
         echo "${caso},${coste},${tiempo}" >> "${nombre_csv}"
     done
 
+    # Incrementar el contador
     let contador=$contador+1
 done
 
