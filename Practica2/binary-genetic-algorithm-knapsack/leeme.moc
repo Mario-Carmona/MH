@@ -1,0 +1,46 @@
+DESCRIPCION DE LAS INSTANCIAS DEL PROBLEMA DE LA MOCILA 0-1:
+------------------------------------------------------------
+
+En el directorio CCIA\TA\INSTANCIAS\MOCHILA se encuentran siete instancias
+distintas de este problema. Las instancias varian en tama¤o y complejidad.
+El nombre generico de los ficheros es moch.xxx, donde xxx indica el numero
+de objetos considerado. Asi, los siete ficheros contenidos en dicho directorio
+son los siguientes:
+
+    moch.20, moch.50, moch.100, moch.150, moch.200, moch.250, moch1.000
+
+El formato de cada fichero es el que se muestra a continuaci¢n:
+
+a) Capacidad de la mochila.
+b) Numero de objetos considerados.
+c) Dos columnas que representan, para cada objeto, el beneficio (primera 
+   columna) y el peso asociado al mismo (segunda).
+
+Por ejemplo, la primera parte del fichero moch.20 contiene lo siguiente:
+
+
+200             -> Capacidad de la mochila
+20              -> Numero de objetos considerado
+24     18       -> Beneficio y peso del objeto 1
+70     8        -> Beneficio y peso del objeto 2
+71     28       -> Beneficio y peso del objeto 3
+37     17       -> Beneficio y peso del objeto 4
+...
+
+
+Las soluciones exactas para cada instancia son:
+
+        INSTANCIA       BENEFICIO       PESO    NUMERO OBJETOS
+                                                 CONSIDERADOS
+       --------------------------------------------------------
+         MOCH.20          824           200            12 
+         MOCH.50         2052           499            31 
+         MOCH.100        4359          1000            66
+         MOCH.150        6255          1500            92
+         MOCH.200        8081          2000           129
+         MOCH.250       10470          2500           149
+         MOCH.1000       2587          3000           360
+
+
+Recuerdese que el objetivo del problema es maximizar el beneficio obtenido,
+no la carga de la mochila (el peso).
