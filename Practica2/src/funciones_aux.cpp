@@ -503,40 +503,48 @@ Individuo cruce_posicion(const Individuo* padre1, const Individuo* padre2) {
     return hijo;
 }
 
-Individuo operadorMutacion(const Individuo* solucion, const VecInt* posGenes) {
-    VecInt noSeleccionados;
-    VecInt seleccionados;
-
-    Individuo individuoMutado(solucion);
-
-    for(int i = 0; i < solucion->genes.size(); ++i) {
-        if(solucion->genes[i] == 0) {
-            noSeleccionados.push_back(i);
-        }
-        else {
-            seleccionados.push_back(i);
-        }
-    }
+void operadorMutacion(list<Individuo>* poblacion, float probabilidadMutacion) {
+    int numIndiMutacion = probabilidadMutacion * poblacion->size();
+    int numGenes = poblacion->front().genes.size();
+    int numGenesMutacion = probabilidadMutacion * numGenes;
     
-    for(int posGen : (*posGenes)) {
-        if(individuoMutado.genes[posGen] == 0) {
-            individuoMutado.genes[posGen] = 1;
-
-            int posInter = rand() % seleccionados.size();
-            individuoMutado.genes[seleccionados[posInter]] = 0;
-
-            seleccionados[posInter] = posGen;
-            noSeleccionados[posGen] = pos
-        }
-        else {
-            individuoMutado.genes[posGen] = 0;
-
-            int posInter = rand() % noSeleccionados.size();
-            individuoMutado.genes[noSeleccionados[posInter]] = 1;
-        }
+    VecInt posGenes;
+    for(int i = 0; i < numGenesMutacion; ++i) {
+        posGenes.push_back(rand() % numGenes);
     }
 
-    return individuoMutado;
+    for(int i = 0; i < numIndiMutacion; ++i) {
+
+        VecInt noSeleccionados;
+        VecInt seleccionados;
+
+        for(int i = 0; i < poblacion->front().genes.size(); ++i) {
+            if(poblacion->front().genes[i] == 0) {
+                noSeleccionados.push_back(i);
+            }
+            else {
+                seleccionados.push_back(i);
+            }
+        }
+
+        for(int posGen : posGenes) {
+            if(poblacion->front().genes[posGen] == 0) {
+                poblacion->front().genes[posGen] = 1;
+
+                int posInter = rand() % seleccionados.size();
+                poblacion->front().genes[seleccionados[posInter]] = 0;
+            }
+            else {
+                poblacion->front().genes[posGen] = 0;
+
+                int posInter = rand() % noSeleccionados.size();
+                poblacion->front().genes[noSeleccionados[posInter]] = 1;
+            }
+        }
+
+        poblacion->push_back(poblacion->front());
+        poblacion->pop_front();
+    }
 }
 
 void calcularFitness(list<Individuo>* poblacion, const MatDouble* distancias) {

@@ -87,19 +87,7 @@ double AGE_uniforme(list<Individuo> poblacionIni, const MatDouble* distancias, i
         */
 
         // Operador de mutación
-        int numIndiMutacion = probabilidadMutacion * nuevaPoblacion.size();
-        int numGenes = nuevaPoblacion.front().genes.size();
-        int numGenesMutacion = probabilidadMutacion * numGenes;
-
-        VecInt posGenes;
-        for(int i = 0; i < numGenesMutacion; ++i) {
-            posGenes.push_back(rand() % numGenes);
-        }
-
-        for(int i = 0; i < numIndiMutacion; ++i) {
-            nuevaPoblacion.push_back(operadorMutacion(&nuevaPoblacion.front(), &posGenes));
-            nuevaPoblacion.pop_front();
-        }
+        operadorMutacion(&nuevaPoblacion, probabilidadMutacion);
 
         /*
         for(Individuo i : nuevaPoblacion) {

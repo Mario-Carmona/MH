@@ -176,7 +176,7 @@ void aniadirGenesActivos(Individuo* solucion, int numElementos, const MatDouble*
 
 Individuo cruce_posicion(const Individuo* padre1, const Individuo* padre2);
 
-Individuo operadorMutacion(const Individuo* solucion, const VecInt* posGenes);
+void operadorMutacion(std::list<Individuo>* poblacion, float probabilidadMutacion);
 
 void calcularFitness(std::list<Individuo>* poblacion, const MatDouble* distancias);
 
