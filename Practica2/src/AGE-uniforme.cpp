@@ -103,7 +103,7 @@ double AGE_uniforme(list<Individuo> poblacionIni, const MatDouble* distancias, i
         */
 
         // Mecanismo de reemplazo
-        calcularFitness(&nuevaPoblacion, distancias);
+        int incre_iter = calcularFitness(&nuevaPoblacion, distancias);
         
         for(int i = 0; i < tamNuevaPoblacion; ++i) {
             nuevaPoblacion.push_back(poblacionActual.back());
@@ -132,7 +132,7 @@ double AGE_uniforme(list<Individuo> poblacionIni, const MatDouble* distancias, i
         cin >> aux;
         */
 
-        iteraciones += nuevaPoblacion.size();
+        iteraciones += incre_iter;
     }
 
     return poblacionActual.front().fitness;

@@ -150,6 +150,7 @@ SetIntIt elegirSig(SetInt* Solucion, SetInt* noSeleccionados, const MatDouble* d
 struct Individuo {
     VecInt genes;
     double fitness;
+    bool actualizado;
 
     Individuo();
     Individuo(int tam, int genesActivos, const MatDouble* distancias);
@@ -178,7 +179,7 @@ Individuo cruce_posicion(const Individuo* padre1, const Individuo* padre2);
 
 void operadorMutacion(std::list<Individuo>* poblacion, float probabilidadMutacion);
 
-void calcularFitness(std::list<Individuo>* poblacion, const MatDouble* distancias);
+int calcularFitness(std::list<Individuo>* poblacion, const MatDouble* distancias);
 
 /******************************************************************/
 

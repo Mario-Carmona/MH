@@ -102,7 +102,7 @@ double AGG_posicion(list<Individuo> poblacionIni, const MatDouble* distancias, i
         */
 
         // Mecanismo de reemplazo
-        calcularFitness(&nuevaPoblacion, distancias);
+        int incre_iter = calcularFitness(&nuevaPoblacion, distancias);
 
         int maximoFitnessActual = poblacionActual.front().fitness;
         nuevaPoblacion.sort(compare_mayorFitness);
@@ -141,7 +141,7 @@ double AGG_posicion(list<Individuo> poblacionIni, const MatDouble* distancias, i
         cin >> aux;
         */
 
-        iteraciones += nuevaPoblacion.size();
+        iteraciones += incre_iter;
     }
 
     return poblacionActual.front().fitness;

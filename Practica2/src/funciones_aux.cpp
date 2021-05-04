@@ -256,6 +256,7 @@ SetIntIt elegirSig(SetInt* Solucion, SetInt* noSeleccionados, const MatDouble* d
 
 Individuo::Individuo() {
     fitness = 0.0;
+    actualizado = false;
 }
 
 Individuo::Individuo(int tam, int genesActivos, const MatDouble* distancias) {
@@ -275,10 +276,13 @@ Individuo::Individuo(int tam, int genesActivos, const MatDouble* distancias) {
     }
 
     this->fitness = funcion_obj_binaria(&genes, distancias);
+    actualizado = true;
 }
+
 Individuo::Individuo(const Individuo* otro) {
     this->fitness = otro->fitness;
     this->genes = otro->genes;
+    this->actualizado = otro->actualizado;
 }
 
 bool Individuo::operator==(const Individuo& otro) const {
@@ -312,6 +316,15 @@ double funcion_obj_binaria(const VecInt* Solucion, const MatDouble* distancias) 
 
 bool compare_mayorFitness(const Individuo& first, const Individuo& second) {
     if(first.fitness > second.fitness) {
+        return true;
+    }
+    else {
+        return false;
+    }
+}
+
+bool compare_actualizado(const Individuo& first, const Individuo& second) {
+    if(!first.actualizado) {
         return true;
     }
     else {
@@ -366,6 +379,7 @@ Individuo seleccionTorneo(list<Individuo>* poblacion, int tamTorneo) {
 
 Individuo cruce_uniforme(const Individuo* padre1, const Individuo* padre2) {
     Individuo hijo(padre1);
+    hijo.actualizado = false;
 
     for(int i = 0; i < hijo.genes.size(); ++i) {
         if(padre1->genes[i] != padre2->genes[i]) {
@@ -480,6 +494,7 @@ void aniadirGenesActivos(Individuo* solucion, int numElementos, const MatDouble*
 
 Individuo cruce_posicion(const Individuo* padre1, const Individuo* padre2) {
     Individuo hijo(padre1);
+    hijo.actualizado = false;
 
     ListInt posACambiar;
     VecInt valores;
@@ -543,14 +558,28 @@ void operadorMutacion(list<Individuo>* poblacion, float probabilidadMutacion) {
         }
 
         poblacion->push_back(poblacion->front());
+        poblacion->back().actualizado = false;
         poblacion->pop_front();
     }
 }
 
-void calcularFitness(list<Individuo>* poblacion, const MatDouble* distancias) {
+int calcularFitness(list<Individuo>* poblacion, const MatDouble* distancias) {
+    poblacion->sort(compare_actualizado);
+    bool terminar = false;
+    int evaluaciones = 0;
+
     for(Individuo i : (*poblacion)) {
-        i.fitness = funcion_obj_binaria(&i.genes, distancias);
+        if(!i.actualizado) {
+            i.fitness = funcion_obj_binaria(&i.genes, distancias);
+            ++evaluaciones;
+        }
+        else {
+            break;
+        }
+        
     }
+    
+    return evaluaciones;
 }
 
 void leerArchivo(const char* nombre, int &numElemSelec, MatDouble &distancias) {
