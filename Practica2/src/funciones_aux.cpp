@@ -578,11 +578,8 @@ void operadorMutacion(list<Individuo>* poblacion, float probabilidadMutacion) {
     int numGenesMutacion = probabilidadMutacion * numGenes;
 
     for(int i = 0; i < numIndiMutacion; ++i) {
-
         VecInt noSeleccionados;
         VecInt seleccionados;
-
-
 
         for(int i = 0; i < poblacion->front().genes.size(); ++i) {
             if(poblacion->front().genes[i] == 0) {
@@ -667,29 +664,7 @@ int calcularFitness(list<Individuo>* poblacion, const MatDouble* distancias) {
 
     for(auto it = poblacion->begin(); it != poblacion->end(); ++it) {
         if(!it->actualizado) {
-            
-            /*
-            cout << endl;
-            cout << it->fitness << endl;
-
-            int num = 0;
-            for(auto i : it->genes) {
-                cout << i << " ";
-                if(i == 1) {
-                    ++num;
-                }
-            }
-            cout << endl;
-            cout << num << endl;
-            */
-
             it->fitness = funcion_obj_binaria(&it->genes, distancias);
-            /*
-            cout << it->fitness << endl;
-            cout << endl;
-            int aux;
-            cin >> aux;
-            */
             it->actualizado = true;
             ++evaluaciones;
         }
@@ -697,20 +672,6 @@ int calcularFitness(list<Individuo>* poblacion, const MatDouble* distancias) {
             break;
         }
     }
-
-    /*
-    for(Individuo i : (*poblacion)) {
-        if(!i.actualizado) {
-            i.fitness = funcion_obj_binaria(&i.genes, distancias);
-            i.actualizado = true;
-            ++evaluaciones;
-        }
-        else {
-            break;
-        }
-        
-    }
-    */
     
     return evaluaciones;
 }

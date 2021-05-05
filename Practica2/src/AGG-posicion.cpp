@@ -18,92 +18,26 @@ using namespace std;
 double AGG_posicion(list<Individuo> poblacionIni, const MatDouble* distancias, int numGenesFactible, float probabilidadCruce, float probabilidadMutacion) {
 
     int iteraciones = 0;
-    //int aux;
 
     list<Individuo> poblacionActual = poblacionIni;
 
     Individuo mejorPadre;
-
-    /*
-    for(Individuo i : poblacionActual) {
-        for(int j = 0; j < i.genes.size(); ++j) {
-            cout << i.genes[j];
-            cout << " ";
-        }
-        cout << endl;
-    }
-    cout << endl;
-    cout << endl;
-    cin >> aux;
-    */
 
     while(iteraciones < 100000) {
         // Mecanismo de selección
         mejorPadre = poblacionActual.front();
         operador_seleccion(&poblacionActual);
 
-        /*
-        for(Individuo i : nuevaPoblacion) {
-            for(int j = 0; j < i.genes.size(); ++j) {
-                cout << i.genes[j];
-                cout << " ";
-            }
-            cout << endl;
-        }
-        cout << endl;
-        cout << endl;
-        cin >> aux;
-        */
-
         // Operador de cruce
         operador_cruce_posicion(&poblacionActual, probabilidadCruce);
 
-        /*
-        for(Individuo i : nuevaPoblacion) {
-            for(int j = 0; j < i.genes.size(); ++j) {
-                cout << i.genes[j];
-                cout << " ";
-            }
-            cout << endl;
-        }
-        cout << endl;
-        cout << endl;
-        cin >> aux;
-        */
-
         // Operador de mutación
         operadorMutacion(&poblacionActual, probabilidadMutacion);
-
-        /*
-        for(Individuo i : nuevaPoblacion) {
-            for(int j = 0; j < i.genes.size(); ++j) {
-                cout << i.genes[j];
-                cout << " ";
-            }
-            cout << endl;
-        }
-        cout << endl;
-        cout << endl;
-        cin >> aux;
-        */
 
         // Mecanismo de reemplazo
         int incre_iter = calcularFitness(&poblacionActual, distancias);
 
         operador_reemplazo(&poblacionActual, &mejorPadre);
-
-        /*
-        for(Individuo i : nuevaPoblacion) {
-            for(int j = 0; j < i.genes.size(); ++j) {
-                cout << i.genes[j];
-                cout << " ";
-            }
-            cout << endl;
-        }
-        cout << endl;
-        cout << endl;
-        cin >> aux;
-        */
 
         iteraciones += incre_iter;
     }

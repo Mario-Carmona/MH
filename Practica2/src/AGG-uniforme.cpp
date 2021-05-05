@@ -18,160 +18,27 @@ using namespace std;
 double AGG_uniforme(list<Individuo> poblacionIni, const MatDouble* distancias, int numGenesFactible, float probabilidadCruce, float probabilidadMutacion) {
 
     int iteraciones = 0;
-    //int aux;
 
     list<Individuo> poblacionActual = poblacionIni;
 
     Individuo mejorPadre;
-
-    /*
-    for(Individuo i : poblacionActual) {
-        int num = 0;
-        for(int j = 0; j < i.genes.size(); ++j) {
-            cout << i.genes[j];
-            if(i.genes[j] == 1) {
-                ++num;
-            } 
-            cout << " ";
-        }
-        cout << endl;
-        cout << num;
-        cout << endl;
-    }
-    cout << poblacionActual.front().fitness;
-    cout << endl;
-    cout << endl;
-    cin >> aux;
-    */
 
     while(iteraciones < 100000) {
         // Mecanismo de selección
         mejorPadre = poblacionActual.front();
         operador_seleccion(&poblacionActual);
 
-        /*
-        for(Individuo i : poblacionActual) {
-            int num = 0;
-            for(int j = 0; j < i.genes.size(); ++j) {
-                cout << i.genes[j];
-                if(i.genes[j] == 1) {
-                    ++num;
-                } 
-                cout << " ";
-            }
-            cout << endl;
-            cout << num;
-            cout << endl;
-        }
-        cout << poblacionActual.front().fitness;
-        cout << endl;
-        cout << endl;
-        cin >> aux;
-        */
-
         // Operador de cruce
         operador_cruce_uniforme(&poblacionActual, probabilidadCruce, numGenesFactible, distancias);
-
-        /*
-        for(Individuo i : poblacionActual) {
-            int num = 0;
-            for(int j = 0; j < i.genes.size(); ++j) {
-                cout << i.genes[j];
-                if(i.genes[j] == 1) {
-                    ++num;
-                } 
-                cout << " ";
-            }
-            cout << endl;
-            cout << num;
-            cout << endl;
-        }
-        cout << poblacionActual.front().fitness;
-        cout << endl;
-        cout << endl;
-        cin >> aux;
-        */
 
         // Operador de mutación
         operadorMutacion(&poblacionActual, probabilidadMutacion);
 
-        /*
-        for(Individuo i : poblacionActual) {
-            int num = 0;
-            for(int j = 0; j < i.genes.size(); ++j) {
-                cout << i.genes[j];
-                if(i.genes[j] == 1) {
-                    ++num;
-                } 
-                cout << " ";
-            }
-            cout << endl;
-            cout << num;
-            cout << endl;
-        }
-        cout << poblacionActual.front().fitness;
-        cout << endl;
-        cout << endl;
-        cin >> aux;
-        */
-
-
         // Mecanismo de reemplazo
         int incre_iter = calcularFitness(&poblacionActual, distancias);
-
-        /*
-        for(Individuo i : poblacionActual) {
-            int num = 0;
-            for(int j = 0; j < i.genes.size(); ++j) {
-                cout << i.genes[j];
-                if(i.genes[j] == 1) {
-                    ++num;
-                } 
-                cout << " ";
-            }
-            cout << endl;
-            cout << num;
-            cout << endl;
-        }
-        cout << poblacionActual.front().fitness;
-        cout << endl;
-        cout << endl;
-        cin >> aux;
-        */
-
-
         operador_reemplazo(&poblacionActual, &mejorPadre);
-
-        /*
-        for(Individuo i : poblacionActual) {
-            int num = 0;
-            for(int j = 0; j < i.genes.size(); ++j) {
-                cout << i.genes[j];
-                if(i.genes[j] == 1) {
-                    ++num;
-                } 
-                cout << " ";
-            }
-            cout << endl;
-            cout << num;
-            cout << endl;
-        }
-        cout << poblacionActual.front().fitness;
-        cout << endl;
-        cout << endl;
-        cin >> aux;
-        */
-
         
         iteraciones += incre_iter;
-
-        /*
-        cout << poblacionActual.front().fitness;
-        cout << "----------------------------------------------------";
-        cout << endl;
-        */
-        //cin >> aux;
-
     }
 
     return poblacionActual.front().fitness;
@@ -209,26 +76,6 @@ int main(int argc, char* argv[]) {
     }
 
     poblacionIni.sort(compare_mayorFitness);
-
-    /*
-    int aux;
-    for(Individuo i : poblacionIni) {
-        int num = 0;
-        for(int j = 0; j < i.genes.size(); ++j) {
-            cout << i.genes[j];
-            if(i.genes[j] == 1) {
-                ++num;
-            } 
-            cout << " ";
-        }
-        cout << endl;
-        cout << num;
-        cout << endl;
-    }
-    cout << endl;
-    cout << endl;
-    cin >> aux;
-    */
 
     start_timers();
 
