@@ -165,7 +165,13 @@ bool compare_mayorFitness(const Individuo& first, const Individuo& second);
 
 bool compare_mayorContri(const std::pair<int,double>& first, const std::pair<int,double>& second);
 
-Individuo seleccionTorneo(std::list<Individuo>* poblacion, int tamTorneo);
+void operador_seleccion(std::list<Individuo>* poblacion);
+
+void operador_seleccion(const std::list<Individuo>* poblacion, std::list<Individuo>* nuevaPoblacion, int tamNuevaPoblacion);
+
+Individuo seleccionTorneo(const std::list<Individuo>* poblacion, int tam, int tamTorneo);
+
+void operador_cruce_uniforme(std::list<Individuo>* poblacion, float probabilidadCruce, int numGenesFactible, const MatDouble* distancias);
 
 Individuo cruce_uniforme(const Individuo* padre1, const Individuo* padre2);
 
@@ -175,9 +181,15 @@ void eliminarGenesActivos(Individuo* solucion, int numElementos, const MatDouble
 
 void aniadirGenesActivos(Individuo* solucion, int numElementos, const MatDouble* distancias);
 
+void operador_cruce_posicion(std::list<Individuo>* poblacion, float probabilidadCruce);
+
 Individuo cruce_posicion(const Individuo* padre1, const Individuo* padre2);
 
 void operadorMutacion(std::list<Individuo>* poblacion, float probabilidadMutacion);
+
+void operador_reemplazo(std::list<Individuo>* poblacion, Individuo* mejorPadre);
+
+void operador_reemplazo(std::list<Individuo>* poblacion, const std::list<Individuo>* nuevaPoblacion);
 
 int calcularFitness(std::list<Individuo>* poblacion, const MatDouble* distancias);
 

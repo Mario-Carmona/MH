@@ -22,6 +22,8 @@ double AGG_posicion(list<Individuo> poblacionIni, const MatDouble* distancias, i
 
     list<Individuo> poblacionActual = poblacionIni;
 
+    Individuo mejorPadre;
+
     /*
     for(Individuo i : poblacionActual) {
         for(int j = 0; j < i.genes.size(); ++j) {
@@ -37,11 +39,8 @@ double AGG_posicion(list<Individuo> poblacionIni, const MatDouble* distancias, i
 
     while(iteraciones < 100000) {
         // Mecanismo de selección
-        list<Individuo> nuevaPoblacion;
-        while(nuevaPoblacion.size() != poblacionActual.size()) {
-            Individuo seleccionado = seleccionTorneo(&poblacionActual, 2);
-            nuevaPoblacion.push_back(seleccionado);
-        }
+        mejorPadre = poblacionActual.front();
+        operador_seleccion(&poblacionActual);
 
         /*
         for(Individuo i : nuevaPoblacion) {
@@ -57,20 +56,7 @@ double AGG_posicion(list<Individuo> poblacionIni, const MatDouble* distancias, i
         */
 
         // Operador de cruce
-        int numParejasCruce = probabilidadCruce * (poblacionIni.size() / 2);
-
-        for(int i = 0; i < numParejasCruce; ++i) {
-            Individuo padre1 = nuevaPoblacion.front();
-            nuevaPoblacion.pop_front();
-            Individuo padre2 = nuevaPoblacion.front();
-            nuevaPoblacion.pop_front();
-            
-            Individuo hijo;
-            hijo = cruce_posicion(&padre1, &padre2);
-            nuevaPoblacion.push_back(hijo);
-            hijo = cruce_posicion(&padre1, &padre2);
-            nuevaPoblacion.push_back(hijo);
-        }
+        operador_cruce_posicion(&poblacionActual, probabilidadCruce);
 
         /*
         for(Individuo i : nuevaPoblacion) {
@@ -86,7 +72,7 @@ double AGG_posicion(list<Individuo> poblacionIni, const MatDouble* distancias, i
         */
 
         // Operador de mutación
-        operadorMutacion(&nuevaPoblacion, probabilidadMutacion);
+        operadorMutacion(&poblacionActual, probabilidadMutacion);
 
         /*
         for(Individuo i : nuevaPoblacion) {
@@ -102,31 +88,9 @@ double AGG_posicion(list<Individuo> poblacionIni, const MatDouble* distancias, i
         */
 
         // Mecanismo de reemplazo
-        int incre_iter = calcularFitness(&nuevaPoblacion, distancias);
+        int incre_iter = calcularFitness(&poblacionActual, distancias);
 
-        int maximoFitnessActual = poblacionActual.front().fitness;
-        nuevaPoblacion.sort(compare_mayorFitness);
-        
-        bool encontrado = false;
-
-        for(Individuo i : nuevaPoblacion) {
-            if(i.fitness < maximoFitnessActual) {
-                break;
-            }
-            else if(i.fitness == maximoFitnessActual) {
-                if(poblacionActual.front() == i) {
-                    encontrado = true;
-                    break;
-                }
-            }
-        }
-
-        if(!encontrado) {
-            nuevaPoblacion.pop_back();
-            nuevaPoblacion.push_back(poblacionActual.front());
-        }
-
-        poblacionActual = nuevaPoblacion;
+        operador_reemplazo(&poblacionActual, &mejorPadre);
 
         /*
         for(Individuo i : nuevaPoblacion) {

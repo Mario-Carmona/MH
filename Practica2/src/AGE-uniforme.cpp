@@ -39,10 +39,7 @@ double AGE_uniforme(list<Individuo> poblacionIni, const MatDouble* distancias, i
     while(iteraciones < 100000) {
         // Mecanismo de selección
         list<Individuo> nuevaPoblacion;
-        for(int i = 0; i < tamNuevaPoblacion; ++i) {
-            Individuo seleccionado = seleccionTorneo(&poblacionActual, 2);
-            nuevaPoblacion.push_back(seleccionado);
-        }
+        operador_seleccion(&poblacionActual, &nuevaPoblacion, tamNuevaPoblacion);
 
         /*
         for(Individuo i : nuevaPoblacion) {
@@ -58,20 +55,7 @@ double AGE_uniforme(list<Individuo> poblacionIni, const MatDouble* distancias, i
         */
 
         // Operador de cruce
-        int numParejasCruce = probabilidadCruce * (nuevaPoblacion.size() / 2);
-
-        for(int i = 0; i < numParejasCruce; ++i) {
-            Individuo padre1 = nuevaPoblacion.front();
-            nuevaPoblacion.pop_front();
-            Individuo padre2 = nuevaPoblacion.front();
-            nuevaPoblacion.pop_front();
-            
-            Individuo hijo;
-            hijo = cruce_uniforme(&padre1, &padre2);
-            nuevaPoblacion.push_back(operadorRepair(&hijo, numGenesFactible, distancias));
-            hijo = cruce_uniforme(&padre1, &padre2);
-            nuevaPoblacion.push_back(operadorRepair(&hijo, numGenesFactible, distancias));
-        }
+        operador_cruce_uniforme(&nuevaPoblacion, probabilidadCruce, numGenesFactible, distancias);
 
         /*
         for(Individuo i : nuevaPoblacion) {
@@ -105,19 +89,7 @@ double AGE_uniforme(list<Individuo> poblacionIni, const MatDouble* distancias, i
         // Mecanismo de reemplazo
         int incre_iter = calcularFitness(&nuevaPoblacion, distancias);
         
-        for(int i = 0; i < tamNuevaPoblacion; ++i) {
-            nuevaPoblacion.push_back(poblacionActual.back());
-            poblacionActual.pop_back();
-        }
-
-        nuevaPoblacion.sort(compare_mayorFitness);
-
-        for(int i = 0; i < tamNuevaPoblacion; ++i) {
-            poblacionActual.push_back(nuevaPoblacion.front());
-            nuevaPoblacion.pop_front();
-        }
-
-        poblacionActual.sort(compare_mayorFitness);
+        operador_reemplazo(&poblacionActual, &nuevaPoblacion);
 
         /*
         for(Individuo i : nuevaPoblacion) {
