@@ -158,7 +158,6 @@ struct Individuo {
 
     bool operator==(const Individuo& otro) const;
 
-    void mutate(float probabilidadMutacion);
     Individuo cruce_uniforme(const Individuo* otro);
     Individuo cruce_posicion(const Individuo* otro);
     void repair(int numGenesFactible, const MatDouble* distancias);

@@ -298,40 +298,6 @@ bool Individuo::operator==(const Individuo& otro) const {
     }
 }
 
-void Individuo::mutate(float probabilidadMutacion) {
-    int numGenes = genes.size();
-    int numGenesMutacion = probabilidadMutacion * numGenes;
-
-    VecInt noSeleccionados;
-    VecInt seleccionados;
-
-    for(int i = 0; i < genes.size(); ++i) {
-        if(genes[i] == 0) {
-            noSeleccionados.push_back(i);
-        }
-        else {
-            seleccionados.push_back(i);
-        }
-    }
-
-    VecInt genesACambiar;
-    for(int i = 0; i < numGenesMutacion; ++i) {
-        genesACambiar.push_back(rand() % seleccionados.size());
-    }
-
-    for(int i = 0; i < genesACambiar.size(); ++i) {
-        int posInter1 = genesACambiar[i];
-        genes[seleccionados[posInter1]] = 0;
-
-        int posInter2 = rand() % noSeleccionados.size();
-        genes[noSeleccionados[posInter2]] = 1;
-
-        int aux = seleccionados[posInter1];
-        seleccionados[posInter1] = noSeleccionados[posInter2];
-        noSeleccionados[posInter2] = aux;
-    }
-}
-
 Individuo Individuo::cruce_uniforme(const Individuo* otro) {
     Individuo hijo(*this);
     hijo.actualizado = false;
@@ -513,6 +479,23 @@ bool compare_mayorContri(const pair<int,double>& first, const pair<int,double>& 
     }
 }
 
+bool compare_posiciones(const pair<int,int>& first, const pair<int,int>& second) {
+    if(first.first == second.first) {
+        if(first.second <= second.second) {
+            return true;
+        }
+        else {
+            return false;
+        }
+    }
+    else if(first.first < second.first) {
+        return true;
+    }
+    else {
+        return false;
+    }
+}
+
 void operador_seleccion(std::list<Individuo>* poblacion) {
     int tam = poblacion->size();
     for(int i = 0; i < tam; ++i) {
@@ -604,14 +587,55 @@ void operador_cruce_posicion(std::list<Individuo>* poblacion, float probabilidad
 }
 
 void operadorMutacion(list<Individuo>* poblacion, float probabilidadMutacion) {
-    int numIndiMutacion = probabilidadMutacion * poblacion->size();
+    int total = poblacion->size() * poblacion->front().genes.size();
+    int numMutaciones = probabilidadMutacion * total;
 
-    for(int i = 0; i < numIndiMutacion; ++i) {
-        poblacion->front().mutate(probabilidadMutacion);
+    list<pair<int,int>> posiciones;
+    for(int i = 0; i < numMutaciones; ++i) {
+        int pos = rand() % total;
+        int cromo = pos / poblacion->front().genes.size();
+        int gen = pos % poblacion->front().genes.size();
+        
+        posiciones.push_back(pair<int,int>(cromo,gen));
+    }
 
-        poblacion->push_back(poblacion->front());
-        poblacion->back().actualizado = false;
-        poblacion->pop_front();
+    posiciones.sort(compare_posiciones);
+
+    int i = 0;
+    auto it = poblacion->begin();
+
+    while(!posiciones.empty()) {
+        if(posiciones.front().first == i) {
+            if(it->genes[posiciones.front().second] == 0) {
+                it->genes[posiciones.front().second] = 1;
+                bool encontrado = false;
+                while(!encontrado) {
+                    int pos = rand() % it->genes.size();
+                    if(it->genes[pos] == 1) {
+                        encontrado = true;
+                        it->genes[pos] = 0;
+                    }
+                }
+            }
+            else {
+                it->genes[posiciones.front().second] = 0;
+                bool encontrado = false;
+                while(!encontrado) {
+                    int pos = rand() % it->genes.size();
+                    if(it->genes[pos] == 0) {
+                        encontrado = true;
+                        it->genes[pos] = 1;
+                    }
+                }
+            }
+
+            posiciones.pop_front();
+            it->actualizado = false;
+        }
+        else {
+            ++i;
+            ++it;
+        }
     }
 }
 

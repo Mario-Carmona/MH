@@ -68,7 +68,7 @@ int main(int argc, char* argv[]) {
 
     int numCromosomas = 50;
     float probabilidadCruce = 0.7;
-    float probabilidadMutacion = 0.1;
+    float probabilidadMutacion = 0.1/(distancias.size()+1);
 
     list<Individuo> poblacionIni;
     for(int i = 0; i < numCromosomas; ++i) {
