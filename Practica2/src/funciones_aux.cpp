@@ -298,6 +298,176 @@ bool Individuo::operator==(const Individuo& otro) const {
     }
 }
 
+void Individuo::mutate(float probabilidadMutacion) {
+    int numGenes = genes.size();
+    int numGenesMutacion = probabilidadMutacion * numGenes;
+
+    VecInt noSeleccionados;
+    VecInt seleccionados;
+
+    for(int i = 0; i < genes.size(); ++i) {
+        if(genes[i] == 0) {
+            noSeleccionados.push_back(i);
+        }
+        else {
+            seleccionados.push_back(i);
+        }
+    }
+
+    VecInt genesACambiar;
+    for(int i = 0; i < numGenesMutacion; ++i) {
+        genesACambiar.push_back(rand() % seleccionados.size());
+    }
+
+    for(int i = 0; i < genesACambiar.size(); ++i) {
+        int posInter1 = genesACambiar[i];
+        genes[seleccionados[posInter1]] = 0;
+
+        int posInter2 = rand() % noSeleccionados.size();
+        genes[noSeleccionados[posInter2]] = 1;
+
+        int aux = seleccionados[posInter1];
+        seleccionados[posInter1] = noSeleccionados[posInter2];
+        noSeleccionados[posInter2] = aux;
+    }
+}
+
+Individuo Individuo::cruce_uniforme(const Individuo* otro) {
+    Individuo hijo(*this);
+    hijo.actualizado = false;
+
+    for(int i = 0; i < hijo.genes.size(); ++i) {
+        if(this->genes[i] != otro->genes[i]) {
+            int elegido = rand() % 2;
+            if(elegido == 1) {
+                hijo.genes[i] = otro->genes[i];
+            }
+        }
+    }
+
+    return hijo;
+}
+
+Individuo Individuo::cruce_posicion(const Individuo* otro) {
+    Individuo hijo(*this);
+    hijo.actualizado = false;
+
+    ListInt posACambiar;
+    VecInt valores;
+
+    for(int i = 0; i < hijo.genes.size(); ++i) {
+        if(this->genes[i] != otro->genes[i]) {
+            posACambiar.push_back(i);
+            valores.push_back(this->genes[i]);
+        }
+    }
+
+    while(!valores.empty()) {
+        int elegido = rand() % valores.size();
+        hijo.genes[posACambiar.front()] = valores[elegido];
+
+        posACambiar.pop_front();
+        valores[elegido] = valores.back();
+        valores.pop_back();
+    }
+
+    return hijo;
+}
+
+void Individuo::repair(int numGenesFactible, const MatDouble* distancias) {
+    // Calcular el número de genes activos
+    int numGenesActivos = 0;
+    for(int i = 0; i < genes.size(); ++i) {
+        if(genes[i] == 1) {
+            ++numGenesActivos;
+        }
+    }
+
+    int diferencia = numGenesActivos - numGenesFactible;
+
+    if(diferencia > 0) {
+        eliminarGenesActivos(diferencia, distancias);
+    }
+    else if(diferencia < 0) {
+        aniadirGenesActivos(abs(diferencia), distancias);
+    }
+}
+
+void Individuo::eliminarGenesActivos(int numElementos, const MatDouble* distancias) {
+    MapDouble contribuciones;
+    VecInt seleccionados;
+
+    for(int i = 0; i < genes.size(); ++i) {
+        if(genes[i] == 1) {
+            seleccionados.push_back(i);
+            contribuciones[i] = 0.0;
+        }
+    }
+
+    for(int i = 0; i < seleccionados.size()-1; ++i) {
+        for(int j = i+1; j < seleccionados.size(); ++j) {
+            int fila = seleccionados[i];
+            int columna = seleccionados[j];
+            contribuciones[fila] += (*distancias)[fila][columna-fila-1];
+            contribuciones[columna] += (*distancias)[fila][columna-fila-1];
+        }
+    }
+
+    list<pair<int,double>> listaSeleccionados;
+    for(int i = 0; i < seleccionados.size(); ++i) {
+        listaSeleccionados.push_back(pair<int,double>(seleccionados[i],contribuciones[seleccionados[i]]));
+    }
+
+    listaSeleccionados.sort(compare_mayorContri);
+
+    for(int i = 0; i < numElementos; ++i) {
+        genes[listaSeleccionados.front().first] = 0;
+        listaSeleccionados.pop_front();
+    }
+}
+
+void Individuo::aniadirGenesActivos(int numElementos, const MatDouble* distancias) {
+    MapDouble contribuciones;
+    VecInt noSeleccionados;
+    VecInt seleccionados;
+
+    for(int i = 0; i < genes.size(); ++i) {
+        if(genes[i] == 0) {
+            noSeleccionados.push_back(i);
+            contribuciones[i] = 0.0;
+        }
+        else {
+            seleccionados.push_back(i);
+        }
+    }
+
+    for(int i = 0; i < noSeleccionados.size(); ++i) {
+        for(int j = 0; j < seleccionados.size(); ++j) {
+            int fila = noSeleccionados[i];
+            int columna = seleccionados[j];
+            if(fila < columna) {
+                contribuciones[fila] += (*distancias)[fila][columna-fila-1];
+            }
+            else {
+                contribuciones[fila] += (*distancias)[columna][fila-columna-1];
+            }
+            
+        }
+    }
+
+    list<pair<int,double>> listaNoSeleccionados;
+    for(int i = 0; i < noSeleccionados.size(); ++i) {
+        listaNoSeleccionados.push_back(pair<int,double>(noSeleccionados[i],contribuciones[noSeleccionados[i]]));
+    }
+
+    listaNoSeleccionados.sort(compare_mayorContri);
+
+    for(int i = 0; i < numElementos; ++i) {
+        genes[listaNoSeleccionados.front().first] = 1;
+        listaNoSeleccionados.pop_front();
+    }
+}
+
 double funcion_obj_binaria(const VecInt* Solucion, const MatDouble* distancias) {
     double fitness = 0.0;
     VecInt pos;
@@ -407,125 +577,12 @@ void operador_cruce_uniforme(list<Individuo>* poblacion, float probabilidadCruce
         poblacion->pop_front();
         
         Individuo hijo;
-        hijo = cruce_uniforme(&padre1, &padre2);
-        poblacion->push_back(operadorRepair(&hijo, numGenesFactible, distancias));
-        hijo = cruce_uniforme(&padre1, &padre2);
-        poblacion->push_back(operadorRepair(&hijo, numGenesFactible, distancias));
-    }
-}
-
-Individuo cruce_uniforme(const Individuo* padre1, const Individuo* padre2) {
-    Individuo hijo(padre1);
-    hijo.actualizado = false;
-
-    for(int i = 0; i < hijo.genes.size(); ++i) {
-        if(padre1->genes[i] != padre2->genes[i]) {
-            int elegido = rand() % 2;
-            if(elegido == 1) {
-                hijo.genes[i] = padre2->genes[i];
-            }
-        }
-    }
-
-    return hijo;
-}
-
-Individuo operadorRepair(Individuo* solucion, int numGenesFactible, const MatDouble* distancias) {
-    // Calcular el número de genes activos
-    int numGenesActivos = 0;
-    for(int i = 0; i < solucion->genes.size(); ++i) {
-        if(solucion->genes[i] == 1) {
-            ++numGenesActivos;
-        }
-    }
-
-    int diferencia = numGenesActivos - numGenesFactible;
-
-    if(diferencia == 0) {
-        return (*solucion);
-    }
-    else if(diferencia > 0) {
-        eliminarGenesActivos(solucion, diferencia, distancias);
-        return (*solucion);
-    }
-    else {
-        aniadirGenesActivos(solucion, abs(diferencia), distancias);
-        return (*solucion);
-    }
-}
-
-void eliminarGenesActivos(Individuo* solucion, int numElementos, const MatDouble* distancias) {
-    MapDouble contribuciones;
-    VecInt seleccionados;
-
-    for(int i = 0; i < solucion->genes.size(); ++i) {
-        if(solucion->genes[i] == 1) {
-            seleccionados.push_back(i);
-            contribuciones[i] = 0.0;
-        }
-    }
-
-    for(int i = 0; i < seleccionados.size()-1; ++i) {
-        for(int j = i+1; j < seleccionados.size(); ++j) {
-            int fila = seleccionados[i];
-            int columna = seleccionados[j];
-            contribuciones[fila] += (*distancias)[fila][columna-fila-1];
-            contribuciones[columna] += (*distancias)[fila][columna-fila-1];
-        }
-    }
-
-    list<pair<int,double>> listaSeleccionados;
-    for(int i = 0; i < seleccionados.size(); ++i) {
-        listaSeleccionados.push_back(pair<int,double>(seleccionados[i],contribuciones[seleccionados[i]]));
-    }
-
-    listaSeleccionados.sort(compare_mayorContri);
-
-    for(int i = 0; i < numElementos; ++i) {
-        solucion->genes[listaSeleccionados.front().first] = 0;
-        listaSeleccionados.pop_front();
-    }
-}
-
-void aniadirGenesActivos(Individuo* solucion, int numElementos, const MatDouble* distancias) {
-    MapDouble contribuciones;
-    VecInt noSeleccionados;
-    VecInt seleccionados;
-
-    for(int i = 0; i < solucion->genes.size(); ++i) {
-        if(solucion->genes[i] == 0) {
-            noSeleccionados.push_back(i);
-            contribuciones[i] = 0.0;
-        }
-        else {
-            seleccionados.push_back(i);
-        }
-    }
-
-    for(int i = 0; i < noSeleccionados.size(); ++i) {
-        for(int j = 0; j < seleccionados.size(); ++j) {
-            int fila = noSeleccionados[i];
-            int columna = seleccionados[j];
-            if(fila < columna) {
-                contribuciones[fila] += (*distancias)[fila][columna-fila-1];
-            }
-            else {
-                contribuciones[fila] += (*distancias)[columna][fila-columna-1];
-            }
-            
-        }
-    }
-
-    list<pair<int,double>> listaNoSeleccionados;
-    for(int i = 0; i < noSeleccionados.size(); ++i) {
-        listaNoSeleccionados.push_back(pair<int,double>(noSeleccionados[i],contribuciones[noSeleccionados[i]]));
-    }
-
-    listaNoSeleccionados.sort(compare_mayorContri);
-
-    for(int i = 0; i < numElementos; ++i) {
-        solucion->genes[listaNoSeleccionados.front().first] = 1;
-        listaNoSeleccionados.pop_front();
+        hijo = padre1.cruce_uniforme(&padre2);
+        hijo.repair(numGenesFactible, distancias);
+        poblacion->push_back(hijo);
+        hijo = padre1.cruce_uniforme(&padre2);
+        hijo.repair(numGenesFactible, distancias);
+        poblacion->push_back(hijo);
     }
 }
 
@@ -539,73 +596,18 @@ void operador_cruce_posicion(std::list<Individuo>* poblacion, float probabilidad
         poblacion->pop_front();
         
         Individuo hijo;
-        hijo = cruce_posicion(&padre1, &padre2);
+        hijo = padre1.cruce_posicion(&padre2);
         poblacion->push_back(hijo);
-        hijo = cruce_posicion(&padre1, &padre2);
+        hijo = padre1.cruce_posicion(&padre2);
         poblacion->push_back(hijo);
     }
-}
-
-Individuo cruce_posicion(const Individuo* padre1, const Individuo* padre2) {
-    Individuo hijo(padre1);
-    hijo.actualizado = false;
-
-    ListInt posACambiar;
-    VecInt valores;
-
-    for(int i = 0; i < hijo.genes.size(); ++i) {
-        if(padre1->genes[i] != padre2->genes[i]) {
-            posACambiar.push_back(i);
-            valores.push_back(padre1->genes[i]);
-        }
-    }
-
-    while(!valores.empty()) {
-        int elegido = rand() % valores.size();
-        hijo.genes[posACambiar.front()] = valores[elegido];
-
-        posACambiar.pop_front();
-        valores[elegido] = valores.back();
-        valores.pop_back();
-    }
-
-    return hijo;
 }
 
 void operadorMutacion(list<Individuo>* poblacion, float probabilidadMutacion) {
     int numIndiMutacion = probabilidadMutacion * poblacion->size();
-    int numGenes = poblacion->front().genes.size();
-    int numGenesMutacion = probabilidadMutacion * numGenes;
 
     for(int i = 0; i < numIndiMutacion; ++i) {
-        VecInt noSeleccionados;
-        VecInt seleccionados;
-
-        for(int i = 0; i < poblacion->front().genes.size(); ++i) {
-            if(poblacion->front().genes[i] == 0) {
-                noSeleccionados.push_back(i);
-            }
-            else {
-                seleccionados.push_back(i);
-            }
-        }
-
-        VecInt genesACambiar;
-        for(int i = 0; i < numGenesMutacion; ++i) {
-            genesACambiar.push_back(rand() % seleccionados.size());
-        }
-
-        for(int i = 0; i < genesACambiar.size(); ++i) {
-            int posInter1 = genesACambiar[i];
-            poblacion->front().genes[seleccionados[posInter1]] = 0;
-
-            int posInter2 = rand() % noSeleccionados.size();
-            poblacion->front().genes[noSeleccionados[posInter2]] = 1;
-
-            int aux = seleccionados[posInter1];
-            seleccionados[posInter1] = noSeleccionados[posInter2];
-            noSeleccionados[posInter2] = aux;
-        }
+        poblacion->front().mutate(probabilidadMutacion);
 
         poblacion->push_back(poblacion->front());
         poblacion->back().actualizado = false;
@@ -659,7 +661,6 @@ void operador_reemplazo(std::list<Individuo>* poblacion, const std::list<Individ
 
 int calcularFitness(list<Individuo>* poblacion, const MatDouble* distancias) {
     poblacion->sort(compare_actualizado);
-    bool terminar = false;
     int evaluaciones = 0;
 
     for(auto it = poblacion->begin(); it != poblacion->end(); ++it) {

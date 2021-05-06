@@ -157,6 +157,13 @@ struct Individuo {
     Individuo(const Individuo* otro);
 
     bool operator==(const Individuo& otro) const;
+
+    void mutate(float probabilidadMutacion);
+    Individuo cruce_uniforme(const Individuo* otro);
+    Individuo cruce_posicion(const Individuo* otro);
+    void repair(int numGenesFactible, const MatDouble* distancias);
+    void eliminarGenesActivos(int numElementos, const MatDouble* distancias);
+    void aniadirGenesActivos(int numElementos, const MatDouble* distancias);
 }; 
 
 double funcion_obj_binaria(const VecInt* Solucion, const MatDouble* distancias);
@@ -173,17 +180,7 @@ Individuo seleccionTorneo(const std::list<Individuo>* poblacion, int tam, int ta
 
 void operador_cruce_uniforme(std::list<Individuo>* poblacion, float probabilidadCruce, int numGenesFactible, const MatDouble* distancias);
 
-Individuo cruce_uniforme(const Individuo* padre1, const Individuo* padre2);
-
-Individuo operadorRepair(Individuo* solucion, int numGenesFactible, const MatDouble* distancias);
-
-void eliminarGenesActivos(Individuo* solucion, int numElementos, const MatDouble* distancias);
-
-void aniadirGenesActivos(Individuo* solucion, int numElementos, const MatDouble* distancias);
-
 void operador_cruce_posicion(std::list<Individuo>* poblacion, float probabilidadCruce);
-
-Individuo cruce_posicion(const Individuo* padre1, const Individuo* padre2);
 
 void operadorMutacion(std::list<Individuo>* poblacion, float probabilidadMutacion);
 
