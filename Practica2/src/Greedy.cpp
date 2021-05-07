@@ -27,12 +27,12 @@ using namespace std;
  * @param numElemSelec Número de elementos que debe tener la solucións
  * @return double Diversidad de la solución final
  */
-double Greedy(SetInt *Solucion, SetInt *noSeleccionados, const MatDouble *distancias, int numElemSelec) {
+double Greedy(ListInt *Solucion, VecInt *noSeleccionados, const MatDouble *distancias, int numElemSelec) {
 
     // Se elige el elemento no seleccionado que tenga una mayor distancia acumulada
-    SetIntIt elegido = calcularDistAcu(noSeleccionados, distancias);
-    
-    Solucion->insert(*elegido);
+    VecIntIt elegido = calcularDistAcu(noSeleccionados, distancias);
+
+    Solucion->push_back(*elegido);
     noSeleccionados->erase(elegido);
 
     while(Solucion->size() < numElemSelec) {
@@ -41,7 +41,7 @@ double Greedy(SetInt *Solucion, SetInt *noSeleccionados, const MatDouble *distan
         // elementos no seleccionados
         elegido = elegirSig(Solucion, noSeleccionados, distancias);
 
-        Solucion->insert(*elegido);
+        Solucion->push_back(*elegido);
         noSeleccionados->erase(elegido);
     }
 
@@ -68,20 +68,21 @@ int main(int argc, char* argv[]) {
     // Obtenemos los datos de entrada
     leerArchivo(fichero, numElemSelec, distancias);
 
-    SetInt SoluIni, noSeleccionados;
+    ListInt SoluIni;
+    VecInt noSeleccionados;
 
     for(int i = 0; i < (int)distancias.size()+1; ++i) {
-        noSeleccionados.insert(i);
+        noSeleccionados.push_back(i);
     }
 
     start_timers();
 
-    double coste_final = Greedy(&SoluIni, &noSeleccionados, &distancias, numElemSelec);
+    double fitness = Greedy(&SoluIni, &noSeleccionados, &distancias, numElemSelec);
 
     auto tiempo_ejec = elapsed_time();
 
     cout << "Tiempo de ejecución: " << tiempo_ejec << endl;
-    cout << "Coste final: " << coste_final << endl;
+    cout << "Fitness: " << fitness << endl;
 
     return 0;
 }

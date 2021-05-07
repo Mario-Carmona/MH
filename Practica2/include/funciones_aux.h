@@ -35,10 +35,17 @@ typedef std::set<int> SetInt;
 typedef std::set<int>::iterator SetIntIt;
 typedef std::vector<std::vector<double>> MatDouble;
 typedef std::list<int> ListInt;
+typedef std::list<int>::iterator ListIntIt;
 
 
 /******************************************************************/
 // Búsqueda Local
+
+double busquedaLocal_M(ListInt *Solucion, VecInt *noSeleccionados, const MatDouble *distancias);
+
+double busquedaLocal_PM(ListInt *Solucion, VecInt *noSeleccionados, const MatDouble *distancias, int* iter, int iter_max = 100000);
+
+bool compare_menorContri(const std::pair<int,double>& first, const std::pair<int,double>& second);
 
 /**
  * @brief Función que baraja un vector de enteros
@@ -58,8 +65,11 @@ void shuffle(VecInt* vector);
  * @param distancias Matriz de distancias entre cada par de elementos
  * @param contri Contribuciones de cada elemento a la distancia total de la solución
  */
-void Int(SetInt* Solucion, SetIntIt elemASustituir, VecInt* noSeleccionados,
-         VecIntIt elemAIncluir, const MatDouble* distancias, MapDouble* contri);
+void Int(std::list<std::pair<int,double>>* Solucion, std::list<std::pair<int,double>>::const_iterator elemASustituir, VecInt* noSeleccionados,
+         VecIntIt elemAIncluir, const MatDouble* distancias);
+
+void Int(ListInt* Solucion, ListIntIt elemASustituir, VecInt* noSeleccionados,
+         VecIntIt elemAIncluir, const MatDouble* distancias);
 
 /**
  * @brief Función que calcula el coste de un solución
@@ -68,7 +78,7 @@ void Int(SetInt* Solucion, SetIntIt elemASustituir, VecInt* noSeleccionados,
  * @param distancias Matriz de distancias entre cada par de elementos
  * @return double Diversidad de la solución
  */
-double funcion_obj(const SetInt* Solucion, const MatDouble* distancias);
+double funcion_obj(const ListInt* Solucion, const MatDouble* distancias);
 
 /**
  * @brief Función que calcula el coste de un solución y sus contribuciones
@@ -78,7 +88,7 @@ double funcion_obj(const SetInt* Solucion, const MatDouble* distancias);
  * @param contri Contribuciones de cada elemento a la distancia total de la solución
  * @return double Diversidad de la solución
  */
-double funcion_obj(const SetInt* Solucion, const MatDouble* distancias, MapDouble *contri);
+double funcion_obj(std::list<std::pair<int,double>>* Solucion, const MatDouble* distancias);
 
 /**
  * @brief Función que calcula el coste de una solución, de manera más eficiente
@@ -96,8 +106,8 @@ double funcion_obj(const SetInt* Solucion, const MatDouble* distancias, MapDoubl
  *                                  la solución y si mejora el elemento que se ha incluido
  *                                  para conseguir la mejora
  */
-std::pair<bool,VecIntIt> funcion_obj_facto(const SetInt* Solucion, const MatDouble* distancias,
-                       SetIntIt elemSustituido, VecIntIt elemIncluido, double* coste_actual);
+std::pair<bool,VecIntIt> funcion_obj_facto(const std::list<std::pair<int,double>>* Solucion, const MatDouble* distancias,
+                       int elemSustituido, VecIntIt elemIncluido, double* coste_actual);
 
 /**
  * @brief Función que calcula el coste de una solución, de manera más eficiente
@@ -116,12 +126,14 @@ std::pair<bool,VecIntIt> funcion_obj_facto(const SetInt* Solucion, const MatDoub
  *                                  la solución y si mejora el elemento que se ha incluido
  *                                  para conseguir la mejora
  */
-std::pair<bool,VecIntIt> funcion_obj_facto(const SetInt* Solucion, const MatDouble* distancias,
-                       SetIntIt elemSustituido, VecIntIt elemIncluido, double coste_actual, double* new_coste);
+std::pair<bool,VecIntIt> funcion_obj_facto(const ListInt* Solucion, const MatDouble* distancias,
+                       ListIntIt elemSustituido, VecIntIt elemIncluido, double coste_actual, double* new_coste);
 
 /******************************************************************/
 /******************************************************************/
 // Greedy
+
+double Greedy(ListInt *Solucion, VecInt *noSeleccionados, const MatDouble *distancias, int numElemSelec);
 
 /**
  * @brief Función que elige el elemento más optimo para empezar a generar
@@ -131,7 +143,7 @@ std::pair<bool,VecIntIt> funcion_obj_facto(const SetInt* Solucion, const MatDoub
  * @param distancias Matriz de distancias entre cada par de elementos
  * @return SetIntIt 
  */
-SetIntIt calcularDistAcu(SetInt* noSeleccionados, const MatDouble* distancias);
+VecIntIt calcularDistAcu(VecInt* noSeleccionados, const MatDouble* distancias);
 
 /**
  * @brief Función que elige el elemento más óptimo para la solución
@@ -141,12 +153,11 @@ SetIntIt calcularDistAcu(SetInt* noSeleccionados, const MatDouble* distancias);
  * @param distancias Matriz de distancias entre cada par de elementos
  * @return SetIntIt 
  */
-SetIntIt elegirSig(SetInt* Solucion, SetInt* noSeleccionados, const MatDouble* distancias);
+VecIntIt elegirSig(ListInt* Solucion, VecInt* noSeleccionados, const MatDouble* distancias);
 
 /******************************************************************/
 /******************************************************************/
 // Algoritmo genético
-
 struct Individuo {
     VecInt genes;
     double fitness;
@@ -188,6 +199,14 @@ void operador_reemplazo(std::list<Individuo>* poblacion, Individuo* mejorPadre);
 void operador_reemplazo(std::list<Individuo>* poblacion, const std::list<Individuo>* nuevaPoblacion);
 
 int calcularFitness(std::list<Individuo>* poblacion, const MatDouble* distancias);
+
+/******************************************************************/
+/******************************************************************/
+// Algoritmo genético
+
+void convertirSolucion(std::list<Individuo>::iterator solucion_binaria, ListInt* seleccionados, VecInt* noSeleccionados);
+
+void recuperarSolucion(std::list<Individuo>::iterator solucion_binaria, ListInt* seleccionados);
 
 /******************************************************************/
 

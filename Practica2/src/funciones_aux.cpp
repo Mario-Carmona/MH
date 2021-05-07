@@ -13,6 +13,91 @@
 
 using namespace std;
 
+/**
+ * @brief Función que calcula la diversidad de una solución obtenida
+ *        mediante el algoritmo de Búsqueda Local del Primero Mejor.
+ * 
+ * @param Solucion Solución inicial
+ * @param noSeleccionados Lista de elementos no seleccionados para la solución
+ * @param distancias Matriz de distancias entre cada par de elementos
+ * @return double Diversidad de la solución final
+ */
+double busquedaLocal_PM(ListInt *Solucion, VecInt *noSeleccionados, const MatDouble *distancias, int* iteraciones, int iter_max) {
+
+    bool terminado = false;
+
+    // Inicialización del vector de contribuciones, que indica cuánto
+    // contribuye cada elementos al total de la diversidad de una solución
+    list<pair<int,double>> solucion_contri;
+    for(auto i : *Solucion) {
+        solucion_contri.push_back(pair<int,double>(i,0.0));
+    }
+
+    // Se obtiene la diversidad de la solución inicial, y sus contribuciones
+    double coste_actual = funcion_obj(&solucion_contri, distancias);
+
+    // Se calcula el elemento con menor contribución en la solución inicial
+    solucion_contri.sort(compare_menorContri);
+
+    while(*iteraciones < iter_max && !terminado) {
+        
+        pair<bool,VecIntIt> mejorado (false,noSeleccionados->begin());
+        terminado = true;
+
+        // Se baraja la lista de elementos no seleccionado, para hacer que
+        // la elección del primer elemento que mejore la solución, sea de forma
+        // aleatoria
+        shuffle(noSeleccionados);
+
+        // Obtener un elemento en la lista de no seleccionado que mejore la
+        // solución actual
+        auto minContriElem = solucion_contri.cbegin();
+        for(; minContriElem != solucion_contri.cend(); ++minContriElem) {
+            for(auto elemAIncluir = noSeleccionados->begin(); elemAIncluir != noSeleccionados->end() && !mejorado.first; ++elemAIncluir) {
+                
+                mejorado = funcion_obj_facto(&solucion_contri, distancias, minContriElem->first, elemAIncluir, &coste_actual);
+
+                (*iteraciones) += 1;
+                if(mejorado.first || *iteraciones >= iter_max) {
+                    break;
+                }
+            }
+            if(mejorado.first || *iteraciones >= iter_max) {
+                break;
+            }
+        }
+
+        // Si se encuentra ese elemento, 
+        if(mejorado.first) {
+            // Se intercambia por el elementos con menor contribución, y se calculan 
+            // las contribuciones de la nueva solución actual
+            Int(&solucion_contri, minContriElem, noSeleccionados, mejorado.second, distancias);
+
+            solucion_contri.sort(compare_menorContri);
+
+            // Se indica que no debe terminar el proceso, al haber mejora la
+            // antigua solución actual
+            terminado = false;
+        }
+    }
+
+    Solucion->clear();
+    for(auto i : solucion_contri) {
+        Solucion->push_back(i.first);
+    }
+
+    return coste_actual;
+}
+
+bool compare_menorContri(const pair<int,double>& first, const pair<int,double>& second) {
+    if(first.second <= second.second) {
+        return true;
+    }
+    else {
+        return false;
+    }
+}
+
 void shuffle(VecInt* vector) {
     for(int i = vector->size()-1; i > 0; --i) {
         int random = rand() % (i+1);
@@ -23,34 +108,48 @@ void shuffle(VecInt* vector) {
     }
 }
 
-void Int(SetInt* Solucion, SetIntIt elemASustituir, VecInt* noSeleccionados,
-         VecIntIt elemAIncluir, const MatDouble* distancias, MapDouble* contri) {
+void Int(list<pair<int,double>>* Solucion, list<pair<int,double>>::const_iterator elemASustituir, VecInt* noSeleccionados,
+         VecIntIt elemAIncluir, const MatDouble* distancias) {
 
     double contri_j = 0.0;
 
-    for(auto aux : *Solucion){
-        if(aux != *elemASustituir) {
+    for(auto i = Solucion->begin(); i != Solucion->end(); ++i) {
+        if(i->first != elemASustituir->first) {
             // Restar las distancias del elemento a sustituir a las contribuciones
-            if(aux > *elemASustituir) {
-                (*contri)[aux] -= (*distancias)[*elemASustituir][aux-*elemASustituir-1];
+            if(i->first > elemASustituir->first) {
+                i->second -= (*distancias)[elemASustituir->first][i->first-elemASustituir->first-1];
             }
             else {
-                (*contri)[aux] -= (*distancias)[aux][*elemASustituir-aux-1];
+                i->second -= (*distancias)[i->first][elemASustituir->first-i->first-1];
             }
 
             // Sumar las distancias del elemento a incluir a las contribuciones
             double dist;
-            if(aux > *elemAIncluir) {
-                dist = (*distancias)[*elemAIncluir][aux-*elemAIncluir-1];
+            if(i->first > *elemAIncluir) {
+                dist = (*distancias)[*elemAIncluir][i->first-*elemAIncluir-1];
             }
             else {
-                dist = (*distancias)[aux][*elemAIncluir-aux-1];
+                dist = (*distancias)[i->first][*elemAIncluir-i->first-1];
             }
 
-            (*contri)[aux] += dist;
+            i->second += dist;
             contri_j += dist;                      
         }
     }
+
+    // Intercambiar los elementos
+    int a = elemASustituir->first;
+    int b = *elemAIncluir;
+
+    noSeleccionados->erase(elemAIncluir);
+    noSeleccionados->push_back(a);
+
+    Solucion->erase(elemASustituir);
+    Solucion->push_back(pair<int,double>(b,contri_j));
+}
+
+void Int(ListInt* Solucion, ListIntIt elemASustituir, VecInt* noSeleccionados,
+         VecIntIt elemAIncluir, const MatDouble* distancias) {
 
     // Intercambiar los elementos
     int a = *elemASustituir;
@@ -60,14 +159,10 @@ void Int(SetInt* Solucion, SetIntIt elemASustituir, VecInt* noSeleccionados,
     noSeleccionados->push_back(a);
 
     Solucion->erase(elemASustituir);
-    Solucion->insert(b);
-
-    // Añadir las contribuciones del nuevo elemento
-    contri->erase(a);
-    (*contri)[b] = contri_j;
+    Solucion->push_back(b);
 }
 
-double funcion_obj(const SetInt* Solucion, const MatDouble* distancias) {
+double funcion_obj(const ListInt* Solucion, const MatDouble* distancias) {
     double total = 0.0;
 
     for(auto i = Solucion->cbegin(); i != --Solucion->cend(); ++i) {
@@ -75,56 +170,67 @@ double funcion_obj(const SetInt* Solucion, const MatDouble* distancias) {
         ++j;
         for(; j != Solucion->cend(); ++j) {
             // Sumar la distancia entre los elementos que conforman la solución
-            total += (*distancias)[*i][*j-*i-1];
+            if(*i > *j) {
+                total += (*distancias)[*j][*i-*j-1];
+            }
+            else {
+                total += (*distancias)[*i][*j-*i-1];
+            }
         }
     }
 
     return total;
 }
 
-double funcion_obj(const SetInt* Solucion, const MatDouble* distancias, MapDouble *contri) {
+double funcion_obj(list<pair<int,double>>* Solucion, const MatDouble* distancias) {
     double total = 0.0;
 
-    for(auto i = Solucion->cbegin(); i != --Solucion->cend(); ++i) {
+    for(auto i = Solucion->begin(); i != --Solucion->end(); ++i) {
         auto j = i;
         ++j;
-        for(; j != Solucion->cend(); ++j) {
-            double dist = (*distancias)[*i][*j-*i-1];
+        for(; j != Solucion->end(); ++j) {
+            double dist;
+            if(i->first > j->first) {
+                dist = (*distancias)[j->first][i->first-j->first-1];
+            }
+            else {
+                dist = (*distancias)[i->first][j->first-i->first-1];
+            }
 
             // Sumar la distancia entre los elementos que conforman la solución
             total += dist;
             // Tener en cuenta la distancia calculada en la contribución en los
             // elementos utilizados para calcular la distancia 
-            (*contri)[*i] += dist;
-            (*contri)[*j] += dist;
+            i->second += dist;
+            j->second += dist;
         }
     }
 
     return total;
 }
 
-pair<bool,VecIntIt> funcion_obj_facto(const SetInt* Solucion, const MatDouble* distancias,
-                       SetIntIt elemSustituido, VecIntIt elemIncluido, double* coste_actual) {
+pair<bool,VecIntIt> funcion_obj_facto(const list<pair<int,double>>* Solucion, const MatDouble* distancias,
+                       int elemSustituido, VecIntIt elemIncluido, double* coste_actual) {
     
     // Nuevo coste de la solución al intercambiar el elemento
     double nuevo_coste = (*coste_actual);
 
-    for(auto aux = Solucion->begin(); aux != Solucion->end(); ++aux) {
-        if(aux != elemSustituido) {
+    for(auto i : (*Solucion)) {
+        if(i.first != elemSustituido) {
             // Se restan las distancias al elemento a sustituir al coste de la solución
-            if(*aux > *elemSustituido) {
-                nuevo_coste -= (*distancias)[*elemSustituido][*aux-*elemSustituido-1];
+            if(i.first > elemSustituido) {
+                nuevo_coste -= (*distancias)[elemSustituido][i.first-elemSustituido-1];
             }
             else {
-                nuevo_coste -= (*distancias)[*aux][*elemSustituido-*aux-1];
+                nuevo_coste -= (*distancias)[i.first][elemSustituido-i.first-1];
             }
 
             // Se suman las distancias al elemento a incluir al coste de la solución
-            if(*aux > *elemIncluido) {
-                nuevo_coste += (*distancias)[*elemIncluido][*aux-*elemIncluido-1];
+            if(i.first > *elemIncluido) {
+                nuevo_coste += (*distancias)[*elemIncluido][i.first-*elemIncluido-1];
             }
             else {
-                nuevo_coste += (*distancias)[*aux][*elemIncluido-*aux-1];
+                nuevo_coste += (*distancias)[i.first][*elemIncluido-i.first-1];
             }
         }
     }
@@ -140,8 +246,8 @@ pair<bool,VecIntIt> funcion_obj_facto(const SetInt* Solucion, const MatDouble* d
     }
 }
 
-pair<bool,VecIntIt> funcion_obj_facto(const SetInt* Solucion, const MatDouble* distancias,
-                       SetIntIt elemSustituido, VecIntIt elemIncluido, double coste_actual, double* new_coste) {
+pair<bool,VecIntIt> funcion_obj_facto(const ListInt* Solucion, const MatDouble* distancias,
+                       ListIntIt elemSustituido, VecIntIt elemIncluido, double coste_actual, double* new_coste) {
 
     // Nuevo coste de la solución al intercambiar el elemento
     (*new_coste) = coste_actual;
@@ -177,81 +283,82 @@ pair<bool,VecIntIt> funcion_obj_facto(const SetInt* Solucion, const MatDouble* d
     }
 }
 
-SetIntIt calcularDistAcu(SetInt* noSeleccionados, const MatDouble* distancias) {
+bool compare_mayorDistAcu(const pair<VecIntIt,double>& first, const pair<VecIntIt,double>& second) {
+    if(first.second >= second.second) {
+        return true;
+    }
+    else {
+        return false;
+    }
+}
+
+bool compare_mayorDist(const pair<pair<ListIntIt,VecIntIt>,double>& first, const pair<pair<ListIntIt,VecIntIt>,double>& second) {
+    if(first.second >= second.second) {
+        return true;
+    }
+    else {
+        return false;
+    }
+}
+
+VecIntIt calcularDistAcu(VecInt* noSeleccionados, const MatDouble* distancias) {
     // Inicializar la matriz de distancia acumuladas de cada 
     // elemento no seleccionado
-    MapDouble distAcu;
-    for(auto i : *noSeleccionados) {
-        distAcu[i] = 0.0;
+    list<pair<VecIntIt,double>> distAcu;
+    for(auto i = noSeleccionados->begin(); i != noSeleccionados->end(); ++i) {
+        distAcu.push_back(pair<VecIntIt,double>(i,0.0));
     }
     
-    for(auto i = noSeleccionados->begin(); i != --noSeleccionados->end(); ++i) {
+    for(auto i = distAcu.begin(); i != --distAcu.end(); ++i) {
         auto j = i;
         ++j;
-        for(; j != noSeleccionados->end(); ++j) {
-            double dist = (*distancias)[*i][*j-*i-1];
+        for(; j != distAcu.end(); ++j) {
+            double dist = (*distancias)[*i->first][*j->first-*i->first-1];
 
             // Sumar la distancia en la posición de cada elemento en el vector
             // de distancias acumuladas
-            distAcu[*i] += dist;
-            distAcu[*j] += dist;
+            i->second += dist;
+            j->second += dist;
         }
     }
-
-    double max_dist = 0.0;
-    SetIntIt it = noSeleccionados->end();
 
     // Obtener el elemento que tiene una mayor distancia acumulada
-    for(auto i = noSeleccionados->begin(); i != noSeleccionados->end(); ++i){
-        if(max_dist < distAcu[*i]) {
-            max_dist = distAcu[*i];
-            it = i;
-        }
-    } 
+    distAcu.sort(compare_mayorDistAcu);
 
-    return it;
+    return distAcu.front().first;
 }
 
-SetIntIt elegirSig(SetInt* Solucion, SetInt* noSeleccionados, const MatDouble* distancias) {
+VecIntIt elegirSig(ListInt* Solucion, VecInt* noSeleccionados, const MatDouble* distancias) {
     // Inicializar la matriz de distancia acumuladas de cada 
     // elemento no seleccionado
-    MapDouble distMin;
-    for(auto i : *Solucion) {
-        distMin[i] = MAXFLOAT;
-    }
-    map<int,SetIntIt> distMinIt;
-
+    list<pair<pair<ListIntIt,VecIntIt>,double>> distMin;
     for(auto i = Solucion->begin(); i != Solucion->end(); ++i) {
+        distMin.push_back(pair<pair<ListIntIt,VecIntIt>,double>(pair<ListIntIt,VecIntIt>(i,nullptr),MAXFLOAT));
+    }
+
+    for(auto i = distMin.begin(); i != distMin.end(); ++i) {
         for(auto j = noSeleccionados->begin(); j != noSeleccionados->end(); ++j) {
             double dist;
-            if(*i < *j) {
-                dist = (*distancias)[*i][*j-*i-1];
+            if(*i->first.first < *j) {
+                dist = (*distancias)[*i->first.first][*j-*i->first.first-1];
             }
             else {
-                dist = (*distancias)[*j][*i-*j-1];
+                dist = (*distancias)[*j][*i->first.first-*j-1];
             }
 
             // Obtención de la distancia mínima de un elemento de la solución con
             // cualquier elemento no seleccionado
-            if(distMin[*i] > dist){
-                distMin[*i] = dist;
-                distMinIt[*i] = j;
+            if(i->second > dist){
+                i->second = dist;
+                i->first.second = j;
             }
         }
     }
 
-    double max_dist = -1;
-    SetIntIt it = noSeleccionados->end();
-
     // Obtención del elemento que tiene una mayor distancia mínima
-    for(auto i = Solucion->begin(); i != Solucion->end(); ++i){
-        if(max_dist < distMin[*i]) {
-            max_dist = distMin[*i];
-            it = distMinIt[*i];
-        }
-    }
+    distMin.sort(compare_mayorDist);
 
-    return it;
+    return distMin.front().first.second;
 }
 
 Individuo::Individuo() {
@@ -518,33 +625,30 @@ Individuo seleccionTorneo(const list<Individuo>* poblacion, int tam, int tamTorn
     list<Individuo> seleccionados;
 
     // Elegir las posiciones a seleccionar
-    list<int> elegidos;
+    set<int> elegidos;
     while(elegidos.size() != tamTorneo) {
         int elegido = rand() % tam;
-        elegidos.push_back(elegido);
-        elegidos.unique();
+        elegidos.insert(elegido);
     }
-
-    elegidos.sort();
 
     list<Individuo>::const_iterator it = poblacion->cbegin();
     int i = 0;
+    set<int>::const_iterator itEle = elegidos.cbegin();
 
     list<Individuo>::const_iterator mejorIndividuo;
     double mejorFitness = -1;
 
-    while(!elegidos.empty()) {
-        if(i == elegidos.front()) {
+    while(itEle != elegidos.cend()) {
+        if(i == *itEle) {
             if(mejorFitness < it->fitness) {
                 mejorFitness = it->fitness;
                 mejorIndividuo = it;
             }
-            elegidos.pop_front();
+            ++itEle;
         }
-        else {
-            ++it;
-            ++i;
-        }
+        
+        ++it;
+        ++i;
     }
 
     return (*mejorIndividuo);
@@ -611,7 +715,7 @@ void operadorMutacion(list<Individuo>* poblacion, float probabilidadMutacion) {
                 bool encontrado = false;
                 while(!encontrado) {
                     int pos = rand() % it->genes.size();
-                    if(it->genes[pos] == 1) {
+                    if(it->genes[pos] == 1 && pos != posiciones.front().second) {
                         encontrado = true;
                         it->genes[pos] = 0;
                     }
@@ -699,6 +803,30 @@ int calcularFitness(list<Individuo>* poblacion, const MatDouble* distancias) {
     }
     
     return evaluaciones;
+}
+
+void convertirSolucion(list<Individuo>::iterator solucion_binaria, ListInt* seleccionados, VecInt* noSeleccionados) {
+    for(int i = 0; i < solucion_binaria->genes.size(); ++i) {
+        if(solucion_binaria->genes[i] == 0) {
+            noSeleccionados->push_back(i);
+        }
+        else {
+            seleccionados->push_back(i);
+        }
+    }
+}
+
+void recuperarSolucion(list<Individuo>::iterator solucion_binaria, ListInt* seleccionados) {
+    auto it = seleccionados->cbegin();
+    for(int i = 0; i < solucion_binaria->genes.size(); ++i) {
+        if(*it == i) {
+            solucion_binaria->genes[i] = 1;
+            ++it;
+        }   
+        else {
+            solucion_binaria->genes[i] = 0;
+        }
+    }
 }
 
 void leerArchivo(const char* nombre, int &numElemSelec, MatDouble &distancias) {

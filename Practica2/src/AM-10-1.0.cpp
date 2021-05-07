@@ -1,9 +1,9 @@
 /**
- * @file AGG-uniforme.cpp
+ * @file AM-(10,1.0).cpp
  * @author Mario Carmona Segovia (mcs2000carmona@correo.ugr.es)
  * @brief 
  * @version 0.1
- * @date 2021-05-02
+ * @date 2021-05-06
  * 
  * @copyright Copyright (c) 2021
  * 
@@ -15,9 +15,9 @@
 using namespace std;
 
 
-double AGG_uniforme(list<Individuo> poblacionIni, const MatDouble* distancias, int numGenesFactible, float probabilidadCruce, float probabilidadMutacion) {
-
+double AM_10_1_0(list<Individuo> poblacionIni, const MatDouble* distancias, int numGenesFactible, float probabilidadCruce, float probabilidadMutacion) {
     int iteraciones = 0;
+    int generacion = 0;
 
     list<Individuo> poblacionActual = poblacionIni;
 
@@ -37,12 +37,36 @@ double AGG_uniforme(list<Individuo> poblacionIni, const MatDouble* distancias, i
         // Mecanismo de reemplazo
         int incre_iter = calcularFitness(&poblacionActual, distancias);
         operador_reemplazo(&poblacionActual, &mejorPadre);
-        
+
         iteraciones += incre_iter;
+        ++generacion;
+
+        if(generacion == 10) {
+            int intensidad_BL = 400;
+
+            for(auto it = poblacionActual.begin(); it != poblacionActual.end(); ++it) {
+                int iter_max = iteraciones + intensidad_BL;
+                if(iter_max > 100000) {
+                    iter_max = 100000;
+                }
+
+                ListInt seleccionados;
+                VecInt noSeleccionados;
+                convertirSolucion(it, &seleccionados, &noSeleccionados);
+                busquedaLocal_PM(&seleccionados, &noSeleccionados, distancias, &iteraciones, iter_max);
+                recuperarSolucion(it, &seleccionados);
+
+                if(iteraciones >= 100000) {
+                    break;
+                }
+            }
+
+            generacion = 0;
+        }
     }
 
     return poblacionActual.front().fitness;
-}
+} 
 
 int main(int argc, char* argv[]) {
 
@@ -78,7 +102,7 @@ int main(int argc, char* argv[]) {
 
     start_timers();
 
-    double fitness = AGG_uniforme(poblacionIni, &distancias, numElemSelec, probabilidadCruce, probabilidadMutacion);
+    double fitness = AM_10_1_0(poblacionIni, &distancias, numElemSelec, probabilidadCruce, probabilidadMutacion);
 
     auto tiempo_ejec = elapsed_time();
 
