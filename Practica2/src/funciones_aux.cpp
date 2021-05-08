@@ -13,15 +13,7 @@
 
 using namespace std;
 
-/**
- * @brief Función que calcula la diversidad de una solución obtenida
- *        mediante el algoritmo de Búsqueda Local del Primero Mejor.
- * 
- * @param Solucion Solución inicial
- * @param noSeleccionados Lista de elementos no seleccionados para la solución
- * @param distancias Matriz de distancias entre cada par de elementos
- * @return double Diversidad de la solución final
- */
+
 double busquedaLocal_PM(ListInt *Solucion, VecInt *noSeleccionados, const MatDouble *distancias, int* iteraciones, int iter_max) {
 
     bool terminado = false;
@@ -199,7 +191,7 @@ double funcion_obj(list<pair<int,double>>* Solucion, const MatDouble* distancias
 
             // Sumar la distancia entre los elementos que conforman la solución
             total += dist;
-            // Tener en cuenta la distancia calculada en la contribución en los
+            // Tener en cuenta la distancia calculada en la contribución de los
             // elementos utilizados para calcular la distancia 
             i->second += dist;
             j->second += dist;
@@ -315,7 +307,7 @@ VecIntIt calcularDistAcu(VecInt* noSeleccionados, const MatDouble* distancias) {
         for(; j != distAcu.end(); ++j) {
             double dist = (*distancias)[*i->first][*j->first-*i->first-1];
 
-            // Sumar la distancia en la posición de cada elemento en el vector
+            // Sumar la distancia de cada elemento en el vector
             // de distancias acumuladas
             i->second += dist;
             j->second += dist;
@@ -372,6 +364,7 @@ Individuo::Individuo(int tam, int genesActivos, const MatDouble* distancias) {
     int pos = tam-1;
     ListInt posiciones;
 
+    // Generar los genes del individuo
     int numGenes = 0;
     while(numGenes != genesActivos) {
         int nuevaPos = rand() % tam;
@@ -381,6 +374,7 @@ Individuo::Individuo(int tam, int genesActivos, const MatDouble* distancias) {
         }
     }
 
+    // Obtener el fitness del individuo
     this->fitness = funcion_obj_binaria(&genes, distancias);
     actualizado = true;
 }
@@ -411,6 +405,7 @@ Individuo Individuo::cruce_uniforme(const Individuo* otro) {
 
     for(int i = 0; i < hijo.genes.size(); ++i) {
         if(this->genes[i] != otro->genes[i]) {
+            // Elegir el padre del que coger el gen diferente
             int elegido = rand() % 2;
             if(elegido == 1) {
                 hijo.genes[i] = otro->genes[i];
@@ -428,6 +423,8 @@ Individuo Individuo::cruce_posicion(const Individuo* otro) {
     ListInt posACambiar;
     VecInt valores;
 
+    // Obtener las posiciones a cambiar porque son
+    // genes distintos en ambos padres
     for(int i = 0; i < hijo.genes.size(); ++i) {
         if(this->genes[i] != otro->genes[i]) {
             posACambiar.push_back(i);
@@ -436,6 +433,7 @@ Individuo Individuo::cruce_posicion(const Individuo* otro) {
     }
 
     while(!valores.empty()) {
+        // Asignar un gen aleatorio de los obtenidos
         int elegido = rand() % valores.size();
         hijo.genes[posACambiar.front()] = valores[elegido];
 
@@ -458,10 +456,11 @@ void Individuo::repair(int numGenesFactible, const MatDouble* distancias) {
 
     int diferencia = numGenesActivos - numGenesFactible;
 
+    // Si sobran genes activos, se eliminan
     if(diferencia > 0) {
         eliminarGenesActivos(diferencia, distancias);
     }
-    else if(diferencia < 0) {
+    else if(diferencia < 0) { // Si faltan genes activos, se añaden
         aniadirGenesActivos(abs(diferencia), distancias);
     }
 }
@@ -470,6 +469,7 @@ void Individuo::eliminarGenesActivos(int numElementos, const MatDouble* distanci
     MapDouble contribuciones;
     VecInt seleccionados;
 
+    // Inicializar las contribuciones y obtener los elemenos seleccionados
     for(int i = 0; i < genes.size(); ++i) {
         if(genes[i] == 1) {
             seleccionados.push_back(i);
@@ -477,6 +477,7 @@ void Individuo::eliminarGenesActivos(int numElementos, const MatDouble* distanci
         }
     }
 
+    // Calcular las contribuciones
     for(int i = 0; i < seleccionados.size()-1; ++i) {
         for(int j = i+1; j < seleccionados.size(); ++j) {
             int fila = seleccionados[i];
@@ -486,13 +487,16 @@ void Individuo::eliminarGenesActivos(int numElementos, const MatDouble* distanci
         }
     }
 
+    // Se pasan los elementos y sus contribuciones a una lista
     list<pair<int,double>> listaSeleccionados;
     for(int i = 0; i < seleccionados.size(); ++i) {
         listaSeleccionados.push_back(pair<int,double>(seleccionados[i],contribuciones[seleccionados[i]]));
     }
 
+    // Se ordena la lista por mayor contribución
     listaSeleccionados.sort(compare_mayorContri);
 
+    // Se eliminan tantos elementos como se indique
     for(int i = 0; i < numElementos; ++i) {
         genes[listaSeleccionados.front().first] = 0;
         listaSeleccionados.pop_front();
@@ -504,6 +508,7 @@ void Individuo::aniadirGenesActivos(int numElementos, const MatDouble* distancia
     VecInt noSeleccionados;
     VecInt seleccionados;
 
+    // Inicializar las contribuciones y obtener los elemenos seleccionados y no seleccionados
     for(int i = 0; i < genes.size(); ++i) {
         if(genes[i] == 0) {
             noSeleccionados.push_back(i);
@@ -514,6 +519,7 @@ void Individuo::aniadirGenesActivos(int numElementos, const MatDouble* distancia
         }
     }
 
+    // Calcular las contribuciones
     for(int i = 0; i < noSeleccionados.size(); ++i) {
         for(int j = 0; j < seleccionados.size(); ++j) {
             int fila = noSeleccionados[i];
@@ -528,13 +534,16 @@ void Individuo::aniadirGenesActivos(int numElementos, const MatDouble* distancia
         }
     }
 
+    // Se pasan los elementos y sus contribuciones a una lista
     list<pair<int,double>> listaNoSeleccionados;
     for(int i = 0; i < noSeleccionados.size(); ++i) {
         listaNoSeleccionados.push_back(pair<int,double>(noSeleccionados[i],contribuciones[noSeleccionados[i]]));
     }
 
+    // Se ordena la lista por mayor contribución
     listaNoSeleccionados.sort(compare_mayorContri);
 
+    // Se añaden tantos elementos como se indique
     for(int i = 0; i < numElementos; ++i) {
         genes[listaNoSeleccionados.front().first] = 1;
         listaNoSeleccionados.pop_front();
@@ -543,6 +552,8 @@ void Individuo::aniadirGenesActivos(int numElementos, const MatDouble* distancia
 
 double funcion_obj_binaria(const VecInt* Solucion, const MatDouble* distancias) {
     double fitness = 0.0;
+
+    // Obtener los elementos seleccionados
     VecInt pos;
     for(int i = 0; i < Solucion->size(); ++i) {
         if((*Solucion)[i] == 1) {
@@ -550,6 +561,7 @@ double funcion_obj_binaria(const VecInt* Solucion, const MatDouble* distancias) 
         }
     }
 
+    // Calcular el fitness
     for(int i = 0; i < pos.size()-1; ++i) {
         for(int j = i+1; j < pos.size(); ++j) {
             fitness += (*distancias)[pos[i]][pos[j]-pos[i]-1];
@@ -605,16 +617,21 @@ bool compare_posiciones(const pair<int,int>& first, const pair<int,int>& second)
 
 void operador_seleccion(std::list<Individuo>* poblacion) {
     int tam = poblacion->size();
+    // Añadir el mismo número de individuos resultado del torneo que el número 
+    // original de individuos de la población
     for(int i = 0; i < tam; ++i) {
         Individuo seleccionado = seleccionTorneo(poblacion, tam, 2);
         poblacion->push_back(seleccionado);
     }
+
+    // Eliminar los individuos antiguos
     for(int i = 0; i < tam; ++i) {
         poblacion->pop_front();
     }
 }
 
 void operador_seleccion(const std::list<Individuo>* poblacion, std::list<Individuo>* nuevaPoblacion, int tamNuevaPoblacion) {
+    // Se seleccionan tanto individuos como tamaño va a tener la nueva población
     for(int i = 0; i < tamNuevaPoblacion; ++i) {
         Individuo seleccionado = seleccionTorneo(poblacion, poblacion->size(), 2);
         nuevaPoblacion->push_back(seleccionado);
@@ -638,6 +655,7 @@ Individuo seleccionTorneo(const list<Individuo>* poblacion, int tam, int tamTorn
     list<Individuo>::const_iterator mejorIndividuo;
     double mejorFitness = -1;
 
+    // Comprobar que individuo es el mejor
     while(itEle != elegidos.cend()) {
         if(i == *itEle) {
             if(mejorFitness < it->fitness) {
@@ -658,6 +676,8 @@ void operador_cruce_uniforme(list<Individuo>* poblacion, float probabilidadCruce
     int numParejasCruce = probabilidadCruce * (poblacion->size() / 2);
     
     for(int i = 0; i < numParejasCruce; ++i) {
+        // Se crean dos hijos que se añaden al final de la lista, y se 
+        // eliminan sus dos padres
         Individuo padre1 = poblacion->front();
         poblacion->pop_front();
         Individuo padre2 = poblacion->front();
@@ -677,6 +697,8 @@ void operador_cruce_posicion(std::list<Individuo>* poblacion, float probabilidad
     int numParejasCruce = probabilidadCruce * (poblacion->size() / 2);
 
     for(int i = 0; i < numParejasCruce; ++i) {
+        // Se crean dos hijos que se añaden al final de la lista, y se 
+        // eliminan sus dos padres
         Individuo padre1 = poblacion->front();
         poblacion->pop_front();
         Individuo padre2 = poblacion->front();
@@ -694,6 +716,7 @@ void operadorMutacion(list<Individuo>* poblacion, float probabilidadMutacion) {
     int total = poblacion->size() * poblacion->front().genes.size();
     int numMutaciones = probabilidadMutacion * total;
 
+    // Se obtiene al hacer los cromosomas y los genes a mutar
     list<pair<int,int>> posiciones;
     for(int i = 0; i < numMutaciones; ++i) {
         int pos = rand() % total;
@@ -703,11 +726,14 @@ void operadorMutacion(list<Individuo>* poblacion, float probabilidadMutacion) {
         posiciones.push_back(pair<int,int>(cromo,gen));
     }
 
+    // Se ordenan las posiciones a mutar de menor a mayor, para
+    // que su recorrido sea más eficiente
     posiciones.sort(compare_posiciones);
 
     int i = 0;
     auto it = poblacion->begin();
 
+    // Se realizan todas la mutaciones
     while(!posiciones.empty()) {
         if(posiciones.front().first == i) {
             if(it->genes[posiciones.front().second] == 0) {
@@ -744,13 +770,20 @@ void operadorMutacion(list<Individuo>* poblacion, float probabilidadMutacion) {
 }
 
 void operador_reemplazo(std::list<Individuo>* poblacion, Individuo* mejorPadre) {
+    // Se añade el mejor padre a la nueva población
     poblacion->push_back(mejorPadre);
 
+    // Se ordena la población de mayor a menor según el fitness de los individuos
+    // Esto se hace para encontrar antes al mejor padre, ya que tendrá un fitness alto
+    // en la mayoría de los casos
     poblacion->sort(compare_mayorFitness);
     
     int encontrado = 0;
     list<Individuo>::const_iterator posEncontrado;
 
+    // Se busca cuantas veces a aparece el mejor padre en la población, se deja de buscar
+    // cuando el fitness es menor del que tiene el mejor padre, ya que la población está
+    // ordenada.
     for(auto it = poblacion->cbegin(); it != poblacion->cend(); ++it) {
         if(encontrado == 2) {
             break;
@@ -767,37 +800,53 @@ void operador_reemplazo(std::list<Individuo>* poblacion, Individuo* mejorPadre) 
         }
     }
 
+    // Si se encuentran dos, se elimina uno de ellos; porque eso
+    // significa que el mejor padre se había mantenido en la nueva población
     if(encontrado == 2) {
         poblacion->erase(posEncontrado);
     }
-    else if(encontrado == 1) {
-        poblacion->pop_back();
+    else if(encontrado == 1) {  // Si sólo hay uno se elimina el último elemento de la lista que no sea el mejor padre
+        auto it = poblacion->cend();
+        --it;
+        for(; it != poblacion->cbegin(); --it) {
+            if((*it) == (mejorPadre)) {
+                poblacion->erase(it);
+                break;
+            }
+        }
     }
 }
 
 void operador_reemplazo(std::list<Individuo>* poblacion, const std::list<Individuo>* nuevaPoblacion) {
+    // Añado los individuos de la nueva población a la población actual
     for(auto it = nuevaPoblacion->begin(); it != nuevaPoblacion->end(); ++it) {
         poblacion->push_back(*it);
     }
 
+    // Se ordena la población actual de mayor a menor según el fitness
     poblacion->sort(compare_mayorFitness);
 
+    // Se eliminan tanto últimos elementos de la población como elementos de la nueva
+    // población hayan sido añadidos
     for(int i = 0; i < nuevaPoblacion->size(); ++i) {
         poblacion->pop_back();
     }
 }
 
 int calcularFitness(list<Individuo>* poblacion, const MatDouble* distancias) {
+    // Se ordena la población de tal forma que los que necesitan
+    // recalcular su fitness se encuentran al principio
     poblacion->sort(compare_actualizado);
     int evaluaciones = 0;
 
+    // Se recalcular el fitness de los individuos no actualizados
     for(auto it = poblacion->begin(); it != poblacion->end(); ++it) {
         if(!it->actualizado) {
             it->fitness = funcion_obj_binaria(&it->genes, distancias);
             it->actualizado = true;
             ++evaluaciones;
         }
-        else {
+        else {  // Se deja de recalcular cuando nos encontramos con un individuo actualizado
             break;
         }
     }

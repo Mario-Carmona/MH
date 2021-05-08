@@ -24,7 +24,10 @@ double AM_10_0_1(list<Individuo> poblacionIni, const MatDouble* distancias, int 
     Individuo mejorPadre;
 
     while(iteraciones < 100000) {
-        // Mecanismo de selección
+        // Mecanismo de selección, en este modelo se realiza la selección sobre
+        // la propia población actual, dado que va a ser del mismo tamaño
+
+        // Se guarda el mejor padre de la población actual, antes de realizar la selección
         mejorPadre = poblacionActual.front();
         operador_seleccion(&poblacionActual);
 
@@ -34,17 +37,21 @@ double AM_10_0_1(list<Individuo> poblacionIni, const MatDouble* distancias, int 
         // Operador de mutación
         operadorMutacion(&poblacionActual, probabilidadMutacion);
 
-        // Mecanismo de reemplazo
+        // Cálculo del fitness de la población
         int incre_iter = calcularFitness(&poblacionActual, distancias);
+        // Mecanismo de reemplazo
         operador_reemplazo(&poblacionActual, &mejorPadre);
 
         iteraciones += incre_iter;
         ++generacion;
 
+        // Etapa de explotación
         if(generacion == 10) {
             int intensidad_BL = 400;
             float probabilidad_cromosoma = 0.1;
             int numCromosomas = poblacionActual.size() * probabilidad_cromosoma;
+            
+            // Obtener los cromosomas que se van a utilizar en la explotación
             ListInt listaCromosomas;
             while(listaCromosomas.size() < numCromosomas) {
                 int nuevo = rand() % poblacionActual.size();
@@ -57,6 +64,7 @@ double AM_10_0_1(list<Individuo> poblacionIni, const MatDouble* distancias, int 
             auto it = poblacionActual.begin();
             while(!listaCromosomas.empty()) {
                 if(cromosoma == listaCromosomas.front()) {
+                    // Se fijan las iteraciones máximas que realizará la búsqueda local
                     int iter_max = iteraciones + intensidad_BL;
                     if(iter_max > 100000) {
                         iter_max = 100000;
@@ -64,8 +72,10 @@ double AM_10_0_1(list<Individuo> poblacionIni, const MatDouble* distancias, int 
 
                     ListInt seleccionados;
                     VecInt noSeleccionados;
+                    // Obtener la solución de representación entera
                     convertirSolucion(it, &seleccionados, &noSeleccionados);
                     busquedaLocal_PM(&seleccionados, &noSeleccionados, distancias, &iteraciones, iter_max);
+                    // Recuperar la solución de representación binaria
                     recuperarSolucion(it, &seleccionados);
 
                     if(iteraciones >= 100000) {

@@ -24,7 +24,10 @@ double AGG_posicion(list<Individuo> poblacionIni, const MatDouble* distancias, i
     Individuo mejorPadre;
 
     while(iteraciones < 100000) {
-        // Mecanismo de selección
+        // Mecanismo de selección, en este modelo se realiza la selección sobre
+        // la propia población actual, dado que va a ser del mismo tamaño
+
+        // Se guarda el mejor padre de la población actual, antes de realizar la selección
         mejorPadre = poblacionActual.front();
         operador_seleccion(&poblacionActual);
 
@@ -34,9 +37,9 @@ double AGG_posicion(list<Individuo> poblacionIni, const MatDouble* distancias, i
         // Operador de mutación
         operadorMutacion(&poblacionActual, probabilidadMutacion);
 
-        // Mecanismo de reemplazo
+        // Cálculo del fitness de la población
         int incre_iter = calcularFitness(&poblacionActual, distancias);
-
+        // Mecanismo de reemplazo
         operador_reemplazo(&poblacionActual, &mejorPadre);
 
         iteraciones += incre_iter;

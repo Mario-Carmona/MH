@@ -16,15 +16,6 @@
 using namespace std;
 
 
-/**
- * @brief Función que calcula la diversidad de una solución obtenida
- *        mediante el algoritmo de Búsqueda Local del Mejor.
- * 
- * @param Solucion Solución inicial 
- * @param noSeleccionados Lista de elementos no seleccionados para la solución
- * @param distancias Matriz de distancias entre cada par de elementos
- * @return double Diversidad de la solución final
- */
 double busquedaLocal_M(ListInt *Solucion, VecInt *noSeleccionados, const MatDouble *distancias) {
 
     bool terminado = false;

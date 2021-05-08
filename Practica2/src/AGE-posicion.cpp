@@ -34,7 +34,8 @@ double AGG_posicion(list<Individuo> poblacionIni, const MatDouble* distancias, i
     list<Individuo> poblacionActual = poblacionIni;
 
     while(iteraciones < 100000) {
-        // Mecanismo de selección
+        // Mecanismo de selección, en este modelo se realiza la selección y se
+        // obtiene una nueva población
         list<Individuo> nuevaPoblacion;
         operador_seleccion(&poblacionActual, &nuevaPoblacion, tamNuevaPoblacion);
 
@@ -44,9 +45,9 @@ double AGG_posicion(list<Individuo> poblacionIni, const MatDouble* distancias, i
         // Operador de mutación
         operadorMutacion(&nuevaPoblacion, probabilidadMutacion);
 
-        // Mecanismo de reemplazo
+        // Cálculo del fitness de la población
         int incre_iter = calcularFitness(&nuevaPoblacion, distancias);
-
+        // Mecanismo de reemplazo
         operador_reemplazo(&poblacionActual, &nuevaPoblacion);
 
         iteraciones += incre_iter;
