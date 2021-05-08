@@ -28,7 +28,7 @@ double busquedaLocal_PM(ListInt *Solucion, VecInt *noSeleccionados, const MatDou
     // Se obtiene la diversidad de la solución inicial, y sus contribuciones
     double coste_actual = funcion_obj(&solucion_contri, distancias);
 
-    // Se calcula el elemento con menor contribución en la solución inicial
+    // Se ordenan los elementos de menor a mayor contribución
     solucion_contri.sort(compare_menorContri);
 
     while(*iteraciones < iter_max && !terminado) {
