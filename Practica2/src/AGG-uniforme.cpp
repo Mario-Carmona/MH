@@ -19,6 +19,8 @@ double AGG_uniforme(list<Individuo> poblacionIni, const MatDouble* distancias, i
 
     int iteraciones = 0;
 
+    // También usaré esta población como nueva población, extrayendo
+    // antes el mejor individuo
     list<Individuo> poblacionActual = poblacionIni;
 
     Individuo mejorPadre;
