@@ -892,19 +892,6 @@ double funcion_obj(const VecInt* Solucion, const MatDouble* distancias) {
             }
         }
     }
-    for(auto i = Solucion->cbegin(); i != --Solucion->cend(); ++i) {
-        auto j = i;
-        ++j;
-        for(; j != Solucion->cend(); ++j) {
-            // Sumar la distancia entre los elementos que conforman la solución
-            if(*i > *j) {
-                total += (*distancias)[*j][*i-*j-1];
-            }
-            else {
-                total += (*distancias)[*i][*j-*i-1];
-            }
-        }
-    }
 
     return total;
 }
@@ -950,7 +937,7 @@ void Int(VecInt* Solucion, int elemASustituir, VecInt* noSeleccionados,
     (*Solucion)[elemASustituir] = b;
 }
 
-double enfriarTemperatura(int temp, int temp_ini, int temp_final, int iteraciones) {
+double enfriarTemperatura(double temp, double temp_ini, double temp_final, int iteraciones) {
     if(temp_final >= temp_ini) {
         temp_final = temp_final / 100;
     }
@@ -958,6 +945,170 @@ double enfriarTemperatura(int temp, int temp_ini, int temp_final, int iteracione
     double beta = (temp_ini - temp_final) / (iteraciones*temp_ini*temp_final);
 
     return (temp / (1 + beta*temp));
+}
+
+void generarSolAleatoria(ListInt* Solucion, VecInt* noSeleccionados, int m, int n) {
+    while(Solucion->size() < m) {
+        int nuevo = rand() % n;
+        Solucion->push_back(nuevo);
+        Solucion->sort();
+        Solucion->unique();
+    }
+
+    auto it = Solucion->cbegin();
+    while(it != Solucion->cend()) {
+        for(int i = 0; i < n; ++i) {
+            if(*it == i) {
+                ++it;
+            }
+            else {
+                noSeleccionados->push_back(i);
+            }
+        }
+    }
+}
+
+double ES(VecInt *Solucion, VecInt *noSeleccionados, const MatDouble *distancias, int* iter, int iter_max) {
+    // Valores de los parámetros
+    double fi = 0.3;
+    double mu = 0.3;
+    double temp_final = 0.001;
+
+    double coste_actual = funcion_obj(Solucion, distancias);
+    VecInt mejorSolucion = (*Solucion);
+    double mejorFitness = coste_actual;
+
+    // Cálculo de la temperatura inicial
+    double temp_ini = (mu*coste_actual) / (-log(fi));
+    double temp = temp_ini;
+    
+    int evaluaciones = (*iter);
+    int iteraciones = 0;
+    int numExitos = 1;
+    int numVecGenerados;
+
+    int m = Solucion->size();
+    int numMaxVecGenerados = 10*m;
+    int numMaxExitos = m;
+
+    while(evaluaciones != iter_max && numExitos > 0) {
+        numExitos = 0;
+        numVecGenerados = 0;
+
+        while(numExitos != numMaxExitos && numVecGenerados != numMaxVecGenerados) {
+            // Generar vecino
+            int elemASustituir = rand() % Solucion->size();
+            int elemAIncluir = rand() % noSeleccionados->size();
+
+            // Se comprueba si se sustituye la solución acutal
+            // por el nuevo vecino
+            double coste_vecino = funcion_obj_facto(Solucion, distancias, (*Solucion)[elemASustituir], (*noSeleccionados)[elemAIncluir], coste_actual);
+            ++evaluaciones;
+            ++numVecGenerados;
+
+            double diferencia = coste_actual - coste_vecino;
+            if(diferencia < 0) {
+                Int(Solucion, elemASustituir, noSeleccionados, elemAIncluir, distancias);
+                coste_actual = coste_vecino;
+
+                if(coste_actual > mejorFitness) {
+                    mejorFitness = coste_actual;
+                    mejorSolucion = (*Solucion);
+                }
+
+                ++numExitos;
+            }
+            else {
+                double probabilidad = rand() / (RAND_MAX + 1.);
+                int k = 1;
+                if(probabilidad <= exp( (-diferencia) / (k*temp) )) {
+                    Int(Solucion, elemASustituir, noSeleccionados, elemAIncluir, distancias);
+                    coste_actual = coste_vecino;
+
+                    ++numExitos;
+                }
+            }
+
+            if(evaluaciones == iter_max) {
+                break;
+            }
+        }
+        ++iteraciones;
+
+        // Enfriamiento
+        temp = enfriarTemperatura(temp, temp_ini, temp_final, iteraciones);
+    }
+
+    Solucion->clear();
+    for(auto i : mejorSolucion) {
+        Solucion->push_back(i);
+    }
+
+    (*iter) = evaluaciones;
+
+    return mejorFitness;
+}
+
+void operador_mutacion_ILS(ListInt* Solucion, VecInt* noSeleccionados, const MatDouble* distancias, int t) {
+    int numMutaciones = 0;
+    while(numMutaciones != t) {
+        ListIntIt elemASustituir = Solucion->begin();
+        VecIntIt elemAIncluir = noSeleccionados->begin();
+
+        int aux1 = rand() % Solucion->size();
+        int aux2 = rand() % noSeleccionados->size();
+
+        for(int i = 0; i < max(aux1, aux2); ++i) {
+            if(i < aux1) {
+                ++elemASustituir;
+            }
+            if(i < aux2) {
+                ++elemAIncluir;
+            }
+        }
+
+        Int(Solucion, elemASustituir, noSeleccionados, elemAIncluir, distancias);
+
+        ++numMutaciones;
+    }
+}
+
+void operador_mutacion_ILS(VecInt* Solucion, VecInt* noSeleccionados, const MatDouble* distancias, int t) {
+    int numMutaciones = 0;
+    while(numMutaciones != t) {
+        int elemASustituir = rand() % Solucion->size();
+        int elemAIncluir = rand() % noSeleccionados->size();
+
+        Int(Solucion, elemASustituir, noSeleccionados, elemAIncluir, distancias);
+
+        ++numMutaciones;
+    }
+}
+
+void generarSolAleatoria(VecInt* Solucion, VecInt* noSeleccionados, int m, int n) {
+    ListInt SolInter;
+    while(SolInter.size() < m) {
+        int nuevo = rand() % n;
+        SolInter.push_back(nuevo);
+        SolInter.sort();
+        SolInter.unique();
+    }
+
+    for(auto i : SolInter) {
+        Solucion->push_back(i);
+    }
+
+    auto it = Solucion->cbegin();
+    while(it != Solucion->cend()) {
+        for(int i = 0; i < n; ++i) {
+            if(*it == i) {
+                ++it;
+            }
+            else {
+                noSeleccionados->push_back(i);
+            }
+        }
+    }
 }
 
 void leerArchivo(const char* nombre, int &numElemSelec, MatDouble &distancias) {

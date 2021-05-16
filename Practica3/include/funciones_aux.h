@@ -489,7 +489,21 @@ double funcion_obj_facto(const VecInt* Solucion, const MatDouble* distancias,
 void Int(VecInt* Solucion, int elemASustituir, VecInt* noSeleccionados,
          int elemAIncluir, const MatDouble* distancias);
 
-double enfriarTemperatura(int temp, int temp_ini, int temp_final, int iteraciones);
+double enfriarTemperatura(double temp, double temp_ini, double temp_final, int iteraciones);
+
+void generarSolAleatoria(ListInt* Solucion, VecInt* noSeleccionados, int m, int n);
+
+double ES(VecInt *Solucion, VecInt *noSeleccionados, const MatDouble *distancias, int* iter, int iter_max = 100000);
+
+/******************************************************************/
+/******************************************************************/
+// Algoritmo ILS
+
+void operador_mutacion_ILS(ListInt* Solucion, VecInt* noSeleccionados,const MatDouble* distancias, int t);
+
+void operador_mutacion_ILS(VecInt* Solucion, VecInt* noSeleccionados,const MatDouble* distancias, int t);
+
+void generarSolAleatoria(VecInt* Solucion, VecInt* noSeleccionados, int m, int n);
 
 /******************************************************************/
 
