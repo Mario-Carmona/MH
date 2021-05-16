@@ -1,0 +1,12 @@
+El directorio "es" contiene el codigo fuente de una implementacion
+del algoritmo de Enfriamiento Simulado para resolver el problema del
+Viajante de Comercio.
+
+Existen dos versiones, una para compiladores tipo gcc (cc y gcc, en Linux,
+y djgpp en MS_DOS), contenida en el subdirectorio "gcc", y otra para compi-
+ladores tipo Borland C (Turbo C, Borland C++, etc.), que se encuentra en el
+directorio "bc".
+
+La unica diferencia entre ambas versiones es un #include, que es necesario
+en bc y no en gcc.
+
