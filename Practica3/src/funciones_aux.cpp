@@ -878,6 +878,88 @@ void recuperarSolucion(list<Individuo>::iterator solucion_binaria, ListInt* sele
     }
 }
 
+double funcion_obj(const VecInt* Solucion, const MatDouble* distancias) {
+    double total = 0.0;
+
+    for(int i = 0; i < Solucion->size()-1; ++i) {
+        for(int j = i+1; j < Solucion->size(); ++j) {
+            // Sumar la distancia entre los elementos que conforman la solución
+            if((*Solucion)[i] > (*Solucion)[j]) {
+                total += (*distancias)[(*Solucion)[j]][(*Solucion)[i]-(*Solucion)[j]-1];
+            }
+            else {
+                total += (*distancias)[(*Solucion)[i]][(*Solucion)[j]-(*Solucion)[i]-1];
+            }
+        }
+    }
+    for(auto i = Solucion->cbegin(); i != --Solucion->cend(); ++i) {
+        auto j = i;
+        ++j;
+        for(; j != Solucion->cend(); ++j) {
+            // Sumar la distancia entre los elementos que conforman la solución
+            if(*i > *j) {
+                total += (*distancias)[*j][*i-*j-1];
+            }
+            else {
+                total += (*distancias)[*i][*j-*i-1];
+            }
+        }
+    }
+
+    return total;
+}
+
+double funcion_obj_facto(const VecInt* Solucion, const MatDouble* distancias,
+                       int elemSustituido, int elemIncluido, double coste_actual) {
+    
+    // Nuevo coste de la solución al intercambiar el elemento
+    double new_coste = coste_actual;
+
+    for(int aux = 0; aux < Solucion->size(); ++aux) {
+        if((*Solucion)[aux] != elemSustituido) {
+            // Se restan las distancias al elemento a sustituir al coste de la solución
+            if((*Solucion)[aux] > elemSustituido) {
+                new_coste -= (*distancias)[elemSustituido][(*Solucion)[aux]-elemSustituido-1];
+            }
+            else {
+                new_coste -= (*distancias)[(*Solucion)[aux]][elemSustituido-(*Solucion)[aux]-1];
+            }
+
+            // Se suman las distancias al elemento a incluir al coste de la solución
+            if((*Solucion)[aux] > elemIncluido) {
+                new_coste += (*distancias)[elemIncluido][(*Solucion)[aux]-elemIncluido-1];
+            }
+            else {
+                new_coste += (*distancias)[(*Solucion)[aux]][elemIncluido-(*Solucion)[aux]-1];
+            }
+        }
+    }
+
+    return new_coste;
+}    
+
+void Int(VecInt* Solucion, int elemASustituir, VecInt* noSeleccionados,
+         int elemAIncluir, const MatDouble* distancias) {
+
+    // Intercambiar los elementos
+    int a = (*Solucion)[elemASustituir];
+    int b = (*noSeleccionados)[elemAIncluir];
+
+    (*noSeleccionados)[elemAIncluir] = a;
+
+    (*Solucion)[elemASustituir] = b;
+}
+
+double enfriarTemperatura(int temp, int temp_ini, int temp_final, int iteraciones) {
+    if(temp_final >= temp_ini) {
+        temp_final = temp_final / 100;
+    }
+    
+    double beta = (temp_ini - temp_final) / (iteraciones*temp_ini*temp_final);
+
+    return (temp / (1 + beta*temp));
+}
+
 void leerArchivo(const char* nombre, int &numElemSelec, MatDouble &distancias) {
     ifstream archivo(nombre);
     if(archivo.is_open()) {

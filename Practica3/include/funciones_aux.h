@@ -478,6 +478,20 @@ void convertirSolucion(std::list<Individuo>::iterator solucion_binaria, ListInt*
 void recuperarSolucion(std::list<Individuo>::iterator solucion_binaria, ListInt* seleccionados);
 
 /******************************************************************/
+/******************************************************************/
+// Algoritmo de enfriamiento simulado
+
+double funcion_obj(const VecInt* Solucion, const MatDouble* distancias);
+
+double funcion_obj_facto(const VecInt* Solucion, const MatDouble* distancias,
+                       int elemSustituido, int elemIncluido, double coste_actual);
+
+void Int(VecInt* Solucion, int elemASustituir, VecInt* noSeleccionados,
+         int elemAIncluir, const MatDouble* distancias);
+
+double enfriarTemperatura(int temp, int temp_ini, int temp_final, int iteraciones);
+
+/******************************************************************/
 
 /**
  * @brief Función que obtiene los datos del problema a partir de un fichero plano
