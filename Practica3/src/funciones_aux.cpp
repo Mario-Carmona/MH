@@ -1049,6 +1049,166 @@ double ES(VecInt *Solucion, VecInt *noSeleccionados, const MatDouble *distancias
     return mejorFitness;
 }
 
+double funcion_obj_facto(const list<pair<int,double>>* Solucion, const MatDouble* distancias,
+                       list<pair<int,double>>::iterator elemSustituido, int elemIncluido, double coste_actual) {
+
+    // Nuevo coste de la solución al intercambiar el elemento
+    double new_coste = coste_actual;
+
+    for(auto aux = Solucion->begin(); aux != Solucion->end(); ++aux) {
+        if(aux->first != elemSustituido->first) {
+            // Se restan las distancias al elemento a sustituir al coste de la solución
+            if(aux->first > elemSustituido->first) {
+                new_coste -= (*distancias)[elemSustituido->first][aux->first-elemSustituido->first-1];
+            }
+            else {
+                new_coste -= (*distancias)[aux->first][elemSustituido->first-aux->first-1];
+            }
+
+            // Se suman las distancias al elemento a incluir al coste de la solución
+            if(aux->first > elemIncluido) {
+                new_coste += (*distancias)[elemIncluido][aux->first-elemIncluido-1];
+            }
+            else {
+                new_coste += (*distancias)[aux->first][elemIncluido-aux->first-1];
+            }
+        }
+    }
+
+    return new_coste;
+}    
+
+void Int(std::list<std::pair<int,double>>* Solucion, std::list<std::pair<int,double>>::iterator elemASustituir, VecInt* noSeleccionados,
+         int elemAIncluir, const MatDouble* distancias) {
+
+    double contri_j = 0.0;
+
+    for(auto i = Solucion->begin(); i != Solucion->end(); ++i) {
+        if(i->first != elemASustituir->first) {
+            // Restar las distancias del elemento a sustituir a las contribuciones
+            if(i->first > elemASustituir->first) {
+                i->second -= (*distancias)[elemASustituir->first][i->first-elemASustituir->first-1];
+            }
+            else {
+                i->second -= (*distancias)[i->first][elemASustituir->first-i->first-1];
+            }
+
+            // Sumar las distancias del elemento a incluir a las contribuciones
+            double dist;
+            if(i->first > (*noSeleccionados)[elemAIncluir]) {
+                dist = (*distancias)[(*noSeleccionados)[elemAIncluir]][i->first-(*noSeleccionados)[elemAIncluir]-1];
+            }
+            else {
+                dist = (*distancias)[i->first][(*noSeleccionados)[elemAIncluir]-i->first-1];
+            }
+
+            i->second += dist;
+            contri_j += dist;                      
+        }
+    }
+
+    // Intercambiar los elementos
+    int a = elemASustituir->first;
+    int b = (*noSeleccionados)[elemAIncluir];
+
+    (*noSeleccionados)[elemAIncluir] = a;
+
+    Solucion->erase(elemASustituir);
+    Solucion->push_back(pair<int,double>(b,contri_j));
+}
+
+double ES_inte(VecInt *Solucion, VecInt *noSeleccionados, const MatDouble *distancias, int* iter, int iter_max) {
+    list<pair<int,double>> solucion_contri;
+    for(auto i : (*Solucion)) {
+        solucion_contri.push_back(pair<int,double>(i,0.0));
+    }
+    
+    // Valores de los parámetros
+    double fi = 0.3;
+    double mu = 0.3;
+    double temp_final = 0.001;
+
+    double coste_actual = funcion_obj(&solucion_contri, distancias);
+    list<pair<int,double>> mejorSolucion = solucion_contri;
+    double mejorFitness = coste_actual;
+
+    // Cálculo de la temperatura inicial
+    double temp_ini = (mu*coste_actual) / (-log(fi));
+    double temp = temp_ini;
+    
+    int evaluaciones = (*iter);
+    int iteraciones = 0;
+    int numExitos = 1;
+    int numVecGenerados;
+
+    int m = Solucion->size();
+    int numMaxVecGenerados = 10*m;
+    int numMaxExitos = m;
+
+    solucion_contri.sort(compare_menorContri);
+
+    while(evaluaciones != iter_max && numExitos > 0) {
+        numExitos = 0;
+        numVecGenerados = 0;
+
+        while(numExitos != numMaxExitos && numVecGenerados != numMaxVecGenerados) {
+            // Generar vecino
+            auto elemASustituir = solucion_contri.begin();
+            int elemAIncluir = rand() % noSeleccionados->size();
+
+            // Se comprueba si se sustituye la solución acutal
+            // por el nuevo vecino
+            double coste_vecino = funcion_obj_facto(&solucion_contri, distancias, elemASustituir, (*noSeleccionados)[elemAIncluir], coste_actual);
+            ++evaluaciones;
+            ++numVecGenerados;
+
+            double diferencia = coste_actual - coste_vecino;
+            if(diferencia < 0) {
+                Int(&solucion_contri, elemASustituir, noSeleccionados, elemAIncluir, distancias);
+                coste_actual = coste_vecino;
+
+                solucion_contri.sort(compare_menorContri);
+
+                if(coste_actual > mejorFitness) {
+                    mejorFitness = coste_actual;
+                    mejorSolucion = solucion_contri;
+                }
+
+                ++numExitos;
+            }
+            else {
+                double probabilidad = rand() / (RAND_MAX + 1.);
+                int k = 1;
+                if(probabilidad <= exp( (-diferencia) / (k*temp) )) {
+                    Int(&solucion_contri, elemASustituir, noSeleccionados, elemAIncluir, distancias);
+                    coste_actual = coste_vecino;
+
+                    solucion_contri.sort(compare_menorContri);
+
+                    ++numExitos;
+                }
+            }
+
+            if(evaluaciones == iter_max) {
+                break;
+            }
+        }
+        ++iteraciones;
+
+        // Enfriamiento
+        temp = enfriarTemperatura(temp, temp_ini, temp_final, iteraciones);
+    }
+
+    Solucion->clear();
+    for(auto i : mejorSolucion) {
+        Solucion->push_back(i.first);
+    }
+
+    (*iter) = evaluaciones;
+
+    return mejorFitness;
+}
+
 void operador_mutacion_ILS(ListInt* Solucion, VecInt* noSeleccionados, const MatDouble* distancias, int t) {
     int numMutaciones = 0;
     while(numMutaciones != t) {

@@ -21,7 +21,7 @@ SOURCES_AUX = funciones_aux timer
 OBJS_AUX = $(addsuffix .o, $(addprefix $(OBJ)/, $(SOURCES_AUX)))
 
 # Ficheros ejecutables
-TARGET = BL_PM BL_M Greedy AGG-uniforme AGG-posicion AGE-uniforme AGE-posicion AM-10-1.0 AM-10-0.1 AM-10-0.1-mej ES BMB ILS ILS-ES
+TARGET = BL_PM BL_M Greedy AGG-uniforme AGG-posicion AGE-uniforme AGE-posicion AM-10-1.0 AM-10-0.1 AM-10-0.1-mej ES ES-inte BMB ILS ILS-ES ILS-ES-inte
 
 # Opciones de compilación
 CPPFLAGS_DEBUG = -Wall -fmax-errors=2 -O0 -g -I$(INC)

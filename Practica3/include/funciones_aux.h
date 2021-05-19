@@ -495,6 +495,14 @@ void generarSolAleatoria(ListInt* Solucion, VecInt* noSeleccionados, int m, int 
 
 double ES(VecInt *Solucion, VecInt *noSeleccionados, const MatDouble *distancias, int* iter, int iter_max = 100000);
 
+double funcion_obj_facto(const std::list<std::pair<int,double>>* Solucion, const MatDouble* distancias,
+                       std::list<std::pair<int,double>>::iterator elemSustituido, int elemIncluido, double coste_actual);
+
+void Int(std::list<std::pair<int,double>>* Solucion, std::list<std::pair<int,double>>::iterator elemASustituir, VecInt* noSeleccionados,
+         int elemAIncluir, const MatDouble* distancias);
+
+double ES_inte(VecInt *Solucion, VecInt *noSeleccionados, const MatDouble *distancias, int* iter, int iter_max = 100000);
+
 /******************************************************************/
 /******************************************************************/
 // Algoritmo ILS

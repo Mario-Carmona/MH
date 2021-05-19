@@ -1,5 +1,5 @@
 /**
- * @file ES.cpp
+ * @file ES-inte.cpp
  * @author Mario Carmona Segovia (mcs2000carmona@correo.ugr.es)
  * @brief 
  * @version 0.1
@@ -67,7 +67,7 @@ int main(int argc, char* argv[]) {
 
     int iteraciones = 0;
 
-    double fitness = ES(&SoluIni, &noSeleccionados, &distancias, &iteraciones);
+    double fitness = ES_inte(&SoluIni, &noSeleccionados, &distancias, &iteraciones);
 
     auto tiempo_ejec = elapsed_time();
 
