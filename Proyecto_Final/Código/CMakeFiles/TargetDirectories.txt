@@ -1,0 +1,6 @@
+/home/macarse/Escritorio/Universidad/2º Cuatrimestre/MH/Practicas/Proyecto_Final/Código/CMakeFiles/rebuild_cache.dir
+/home/macarse/Escritorio/Universidad/2º Cuatrimestre/MH/Practicas/Proyecto_Final/Código/CMakeFiles/testsolis.dir
+/home/macarse/Escritorio/Universidad/2º Cuatrimestre/MH/Practicas/Proyecto_Final/Código/CMakeFiles/cec17_test_func.dir
+/home/macarse/Escritorio/Universidad/2º Cuatrimestre/MH/Practicas/Proyecto_Final/Código/CMakeFiles/testrandom.dir
+/home/macarse/Escritorio/Universidad/2º Cuatrimestre/MH/Practicas/Proyecto_Final/Código/CMakeFiles/edit_cache.dir
+/home/macarse/Escritorio/Universidad/2º Cuatrimestre/MH/Practicas/Proyecto_Final/Código/CMakeFiles/test.dir

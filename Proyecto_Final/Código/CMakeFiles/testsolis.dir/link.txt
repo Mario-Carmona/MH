@@ -1,0 +1,1 @@
+/usr/bin/c++    -rdynamic CMakeFiles/testsolis.dir/testsolis.cc.o  -o testsolis  -Wl,-rpath,"/home/macarse/Escritorio/Universidad/2º Cuatrimestre/MH/Practicas/Proyecto_Final/Código" libcec17_test_func.so 

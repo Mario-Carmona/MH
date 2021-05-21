@@ -1,0 +1,20 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/home/macarse/Escritorio/Universidad/2º Cuatrimestre/MH/Practicas/Proyecto_Final/Código/cec17.h
+
+/home/macarse/Escritorio/Universidad/2º Cuatrimestre/MH/Practicas/Proyecto_Final/Código/testsolis.cc
+cec17.h
+/home/macarse/Escritorio/Universidad/2º Cuatrimestre/MH/Practicas/Proyecto_Final/Código/cec17.h
+iostream
+-
+vector
+-
+random
+-
+
