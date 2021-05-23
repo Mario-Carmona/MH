@@ -18,33 +18,25 @@ using namespace std;
 double ILS(ListInt *Solucion, const MatDouble *distancias, int m) {
     int iteracionesMax = 10;
     int iteraciones = 0;
-    ListInt mejorSolucion;
     double mejorFitness;
 
     int t = 0.1 * m;
 
     int iter_fin = 100000 / iteracionesMax;
 
-    ListInt solucionAMejorar;
+    ListInt mejorSolucion;
     VecInt noSeleccionados;
     double fitnessActual;
 
-    generarSolAleatoria(&solucionAMejorar, &noSeleccionados, m, distancias->size()+1);
+    generarSolAleatoria(&mejorSolucion, &noSeleccionados, m, distancias->size()+1);
 
     int iter_ini = 0;
-    fitnessActual = busquedaLocal_PM(&solucionAMejorar, &noSeleccionados, distancias, &iter_ini, iter_fin);
-
-    mejorFitness = fitnessActual;
-    mejorSolucion = solucionAMejorar;
-
-    for(auto i : mejorSolucion) {
-        Solucion->push_back(i);
-    }
+    mejorFitness = busquedaLocal_PM(&mejorSolucion, &noSeleccionados, distancias, &iter_ini, iter_fin);
 
     ++iteraciones;
 
     while(iteraciones != iteracionesMax) {
-        ListInt nuevaSolucion = solucionAMejorar;
+        ListInt nuevaSolucion = mejorSolucion;
         VecInt nuevoNoSeleccionados = noSeleccionados;
 
         operador_mutacion_ILS(&nuevaSolucion, &nuevoNoSeleccionados, distancias, t);
@@ -55,11 +47,6 @@ double ILS(ListInt *Solucion, const MatDouble *distancias, int m) {
         if(nuevo_fitness > mejorFitness) {
             mejorFitness = nuevo_fitness;
             mejorSolucion = nuevaSolucion;
-        }
-
-        if(nuevo_fitness > fitnessActual) {
-            fitnessActual = nuevo_fitness;
-            solucionAMejorar = nuevaSolucion;
             noSeleccionados = nuevoNoSeleccionados;
         }
 

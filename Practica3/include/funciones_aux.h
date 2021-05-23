@@ -481,36 +481,150 @@ void recuperarSolucion(std::list<Individuo>::iterator solucion_binaria, ListInt*
 /******************************************************************/
 // Algoritmo de enfriamiento simulado
 
+/**
+ * @brief Función que calcula el coste de un solución
+ * 
+ * @param Solucion Lista de enteros que forman la solución
+ * @param distancias Matriz de distancias entre cada par de elementos
+ * @return double Diversidad de la solución
+ */
 double funcion_obj(const VecInt* Solucion, const MatDouble* distancias);
 
+/**
+ * @brief Función que calcula el coste de una solución, de manera más eficiente
+ *        que la original. Para ello sólo se restan las distancias del elemento sustituido
+ *        al resto de elementos de la solución, y se suman las distancias del elemento
+ *        incluido al resto de elementos de la solución.
+ * 
+ * @param Solucion Lista de pares que forman la solución
+ * @param distancias Matriz de distancias entre cada par de elementos
+ * @param elemSustituido Entero que se quiere sustituir de la solución
+ * @param elemIncluido Entero que se quiere incluir en la solución
+ * @param coste_actual Coste de la solución actual
+ * @return double Nuevo coste de la solución
+ */
 double funcion_obj_facto(const VecInt* Solucion, const MatDouble* distancias,
                        int elemSustituido, int elemIncluido, double coste_actual);
 
+/**
+ * @brief Función que intercambia un elemento de la solución por otro
+ *        elemento no seleccionado anteriormente
+ * 
+ * @param Solucion Lista de enteros que forman la solución
+ * @param elemASustituir Posición del entero a sustituir de la solución
+ * @param noSeleccionados Lista de enteros que no forman parte de la solución
+ * @param elemAIncluir Posición del entero a incluir en la solución
+ * @param distancias Matriz de distancias entre cada par de elementos
+ */
 void Int(VecInt* Solucion, int elemASustituir, VecInt* noSeleccionados,
          int elemAIncluir, const MatDouble* distancias);
 
+/**
+ * @brief Función para enfriar la temperatura
+ * 
+ * @param temp Temperatura actual
+ * @param temp_ini Temperatura inicial
+ * @param temp_final Temperatura final
+ * @param iteraciones Iteración actual del algoritmo
+ * @return double Nueva temperatura actual
+ */
 double enfriarTemperatura(double temp, double temp_ini, double temp_final, int iteraciones);
 
+/**
+ * @brief Función para generar una solución aleatoria de enteros
+ * 
+ * @param Solucion Lista de enteros que forman la solución
+ * @param noSeleccionados Lista de enteros que no forman parte de la solución
+ * @param m Número de enteros que forman la solución
+ * @param n Número total de enteros
+ */
 void generarSolAleatoria(ListInt* Solucion, VecInt* noSeleccionados, int m, int n);
 
+/**
+ * @brief Algoritmo de enfriamiento simulado
+ * 
+ * @param Solucion Lista de enteros que forman la solución
+ * @param noSeleccionados Lista de enteros que no forman parte de la solución
+ * @param distancias Matriz de distancias entre cada par de elementos
+ * @param iter Número de evaluaciones inicial
+ * @param iter_max Número máximo de evaluaciones
+ * @return double Mejor fitness encontrado
+ */
 double ES(VecInt *Solucion, VecInt *noSeleccionados, const MatDouble *distancias, int* iter, int iter_max = 100000);
 
+/**
+ * @brief Función que calcula el coste de una solución, de manera más eficiente
+ *        que la original. Para ello sólo se restan las distancias del elemento sustituido
+ *        al resto de elementos de la solución, y se suman las distancias del elemento
+ *        incluido al resto de elementos de la solución.
+ * 
+ * @param Solucion Lista de pares que forman la solución y sus contribuciones
+ * @param distancias Matriz de distancias entre cada par de elementos
+ * @param elemSustituido Iterador al entero que se quiere sustituir de la solución
+ * @param elemIncluido Entero que se quiere incluir en la solución
+ * @param coste_actual Coste de la solución actual
+ * @return double Nuevo coste de la solución
+ */
 double funcion_obj_facto(const std::list<std::pair<int,double>>* Solucion, const MatDouble* distancias,
                        std::list<std::pair<int,double>>::iterator elemSustituido, int elemIncluido, double coste_actual);
 
+/**
+ * @brief Función que intercambia un elemento de la solución por otro
+ *        elemento no seleccionado anteriormente
+ * 
+ * @param Solucion Lista de enteros que forman la solución y sus contribuciones
+ * @param elemASustituir Iterador al entero que se quiere sustituir de la solución
+ * @param noSeleccionados Lista de enteros que no forman parte de la solución
+ * @param elemAIncluir Posición del entero a incluir en la solución
+ * @param distancias Matriz de distancias entre cada par de elementos
+ */
 void Int(std::list<std::pair<int,double>>* Solucion, std::list<std::pair<int,double>>::iterator elemASustituir, VecInt* noSeleccionados,
          int elemAIncluir, const MatDouble* distancias);
 
+/**
+ * @brief Algoritmo de enfriamiento simulado inteligente
+ * 
+ * @param Solucion Lista de enteros que forman la solución
+ * @param noSeleccionados Lista de enteros que no forman parte de la solución
+ * @param distancias Matriz de distancias entre cada par de elementos
+ * @param iter Número de evaluaciones inicial
+ * @param iter_max Número máximo de evaluaciones
+ * @return double Mejor fitness encontrado
+ */
 double ES_inte(VecInt *Solucion, VecInt *noSeleccionados, const MatDouble *distancias, int* iter, int iter_max = 100000);
 
 /******************************************************************/
 /******************************************************************/
 // Algoritmo ILS
 
+/**
+ * @brief Función para realizar una mutación multiple
+ * 
+ * @param Solucion Lista de enteros que forman la solución
+ * @param noSeleccionados Lista de enteros que no forman parte de la solución
+ * @param distancias Matriz de distancias entre cada par de elementos
+ * @param t Número máximo de mutaciones
+ */
 void operador_mutacion_ILS(ListInt* Solucion, VecInt* noSeleccionados,const MatDouble* distancias, int t);
 
+/**
+ * @brief Función para realizar una mutación multiple
+ * 
+ * @param Solucion Lista de enteros que forman la solución
+ * @param noSeleccionados Lista de enteros que no forman parte de la solución
+ * @param distancias Matriz de distancias entre cada par de elementos
+ * @param t Número máximo de mutaciones
+ */
 void operador_mutacion_ILS(VecInt* Solucion, VecInt* noSeleccionados,const MatDouble* distancias, int t);
 
+/**
+ * @brief Función para generar una solución aleatoria de enteros
+ * 
+ * @param Solucion Lista de enteros que forman la solución
+ * @param noSeleccionados Lista de enteros que no forman parte de la solución
+ * @param m Número de enteros que forman la solución
+ * @param n Número total de enteros
+ */
 void generarSolAleatoria(VecInt* Solucion, VecInt* noSeleccionados, int m, int n);
 
 /******************************************************************/

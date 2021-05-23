@@ -938,16 +938,20 @@ void Int(VecInt* Solucion, int elemASustituir, VecInt* noSeleccionados,
 }
 
 double enfriarTemperatura(double temp, double temp_ini, double temp_final, int iteraciones) {
+    // Si se supera la temperatura final, esta se disminuye
     if(temp_final >= temp_ini) {
         temp_final = temp_final / 100;
     }
     
+    // Se calcula la constante beta
     double beta = (temp_ini - temp_final) / (iteraciones*temp_ini*temp_final);
 
+    // Se devuelve la nueva temperatura
     return (temp / (1 + beta*temp));
 }
 
 void generarSolAleatoria(ListInt* Solucion, VecInt* noSeleccionados, int m, int n) {
+    // Generación de la solución aleatoria
     while(Solucion->size() < m) {
         int nuevo = rand() % n;
         Solucion->push_back(nuevo);
@@ -955,6 +959,7 @@ void generarSolAleatoria(ListInt* Solucion, VecInt* noSeleccionados, int m, int 
         Solucion->unique();
     }
 
+    // Cálculo de los elementos nos seleccionados
     auto it = Solucion->cbegin();
     while(it != Solucion->cend()) {
         for(int i = 0; i < n; ++i) {
@@ -974,6 +979,7 @@ double ES(VecInt *Solucion, VecInt *noSeleccionados, const MatDouble *distancias
     double mu = 0.3;
     double temp_final = 0.001;
 
+    // Evaluación de la solución inicial
     double coste_actual = funcion_obj(Solucion, distancias);
     VecInt mejorSolucion = (*Solucion);
     double mejorFitness = coste_actual;
@@ -982,7 +988,8 @@ double ES(VecInt *Solucion, VecInt *noSeleccionados, const MatDouble *distancias
     double temp_ini = (mu*coste_actual) / (-log(fi));
     double temp = temp_ini;
     
-    int evaluaciones = (*iter);
+    // Se suma uno para tener en cuenta la evaluación de la solución inicial
+    int evaluaciones = (*iter) + 1;
     int iteraciones = 0;
     int numExitos = 1;
     int numVecGenerados;
@@ -1000,12 +1007,13 @@ double ES(VecInt *Solucion, VecInt *noSeleccionados, const MatDouble *distancias
             int elemASustituir = rand() % Solucion->size();
             int elemAIncluir = rand() % noSeleccionados->size();
 
-            // Se comprueba si se sustituye la solución acutal
-            // por el nuevo vecino
+            // Evaluación del nuevo vecino
             double coste_vecino = funcion_obj_facto(Solucion, distancias, (*Solucion)[elemASustituir], (*noSeleccionados)[elemAIncluir], coste_actual);
             ++evaluaciones;
             ++numVecGenerados;
 
+            // Se comprueba si se sustituye la mejor solución
+            // por el nuevo vecino
             double diferencia = coste_actual - coste_vecino;
             if(diferencia < 0) {
                 Int(Solucion, elemASustituir, noSeleccionados, elemAIncluir, distancias);
@@ -1039,6 +1047,7 @@ double ES(VecInt *Solucion, VecInt *noSeleccionados, const MatDouble *distancias
         temp = enfriarTemperatura(temp, temp_ini, temp_final, iteraciones);
     }
 
+    // Se devuelve la mejor solución
     Solucion->clear();
     for(auto i : mejorSolucion) {
         Solucion->push_back(i);
@@ -1118,6 +1127,7 @@ void Int(std::list<std::pair<int,double>>* Solucion, std::list<std::pair<int,dou
 }
 
 double ES_inte(VecInt *Solucion, VecInt *noSeleccionados, const MatDouble *distancias, int* iter, int iter_max) {
+    // Crear la lista con la solución y sus contribuciones
     list<pair<int,double>> solucion_contri;
     for(auto i : (*Solucion)) {
         solucion_contri.push_back(pair<int,double>(i,0.0));
@@ -1128,6 +1138,7 @@ double ES_inte(VecInt *Solucion, VecInt *noSeleccionados, const MatDouble *dista
     double mu = 0.3;
     double temp_final = 0.001;
 
+    // Evaluación de la solución inicial
     double coste_actual = funcion_obj(&solucion_contri, distancias);
     list<pair<int,double>> mejorSolucion = solucion_contri;
     double mejorFitness = coste_actual;
@@ -1136,7 +1147,8 @@ double ES_inte(VecInt *Solucion, VecInt *noSeleccionados, const MatDouble *dista
     double temp_ini = (mu*coste_actual) / (-log(fi));
     double temp = temp_ini;
     
-    int evaluaciones = (*iter);
+    // Se suma uno para tener en cuenta la evaluación de la solución inicial
+    int evaluaciones = (*iter) + 1;
     int iteraciones = 0;
     int numExitos = 1;
     int numVecGenerados;
@@ -1156,12 +1168,13 @@ double ES_inte(VecInt *Solucion, VecInt *noSeleccionados, const MatDouble *dista
             auto elemASustituir = solucion_contri.begin();
             int elemAIncluir = rand() % noSeleccionados->size();
 
-            // Se comprueba si se sustituye la solución acutal
-            // por el nuevo vecino
+            // Evaluación del nuevo vecino
             double coste_vecino = funcion_obj_facto(&solucion_contri, distancias, elemASustituir, (*noSeleccionados)[elemAIncluir], coste_actual);
             ++evaluaciones;
             ++numVecGenerados;
 
+            // Se comprueba si se sustituye la mejor solución
+            // por el nuevo vecino
             double diferencia = coste_actual - coste_vecino;
             if(diferencia < 0) {
                 Int(&solucion_contri, elemASustituir, noSeleccionados, elemAIncluir, distancias);
@@ -1199,6 +1212,7 @@ double ES_inte(VecInt *Solucion, VecInt *noSeleccionados, const MatDouble *dista
         temp = enfriarTemperatura(temp, temp_ini, temp_final, iteraciones);
     }
 
+    // Se devuelve la mejor solución
     Solucion->clear();
     for(auto i : mejorSolucion) {
         Solucion->push_back(i.first);
@@ -1212,6 +1226,7 @@ double ES_inte(VecInt *Solucion, VecInt *noSeleccionados, const MatDouble *dista
 void operador_mutacion_ILS(ListInt* Solucion, VecInt* noSeleccionados, const MatDouble* distancias, int t) {
     int numMutaciones = 0;
     while(numMutaciones != t) {
+        // Se calcula de forma aleatoria el elementos a incluir y el elemento a sustituir
         ListIntIt elemASustituir = Solucion->begin();
         VecIntIt elemAIncluir = noSeleccionados->begin();
 
@@ -1227,8 +1242,10 @@ void operador_mutacion_ILS(ListInt* Solucion, VecInt* noSeleccionados, const Mat
             }
         }
 
+        // Se intercambian ambos elementos
         Int(Solucion, elemASustituir, noSeleccionados, elemAIncluir, distancias);
 
+        // Se indica la realización de una mutación
         ++numMutaciones;
     }
 }
@@ -1236,17 +1253,21 @@ void operador_mutacion_ILS(ListInt* Solucion, VecInt* noSeleccionados, const Mat
 void operador_mutacion_ILS(VecInt* Solucion, VecInt* noSeleccionados, const MatDouble* distancias, int t) {
     int numMutaciones = 0;
     while(numMutaciones != t) {
+        // Se calcula de forma aleatoria el elementos a incluir y el elemento a sustituir
         int elemASustituir = rand() % Solucion->size();
         int elemAIncluir = rand() % noSeleccionados->size();
 
+        // Se intercambian ambos elementos
         Int(Solucion, elemASustituir, noSeleccionados, elemAIncluir, distancias);
 
+        // Se indica la realización de una mutación
         ++numMutaciones;
     }
 }
 
 void generarSolAleatoria(VecInt* Solucion, VecInt* noSeleccionados, int m, int n) {
     ListInt SolInter;
+    // Generación de la solución aleatoria
     while(SolInter.size() < m) {
         int nuevo = rand() % n;
         SolInter.push_back(nuevo);
@@ -1254,10 +1275,12 @@ void generarSolAleatoria(VecInt* Solucion, VecInt* noSeleccionados, int m, int n
         SolInter.unique();
     }
 
+    // Conversión de la estructura de datos que contiene la solución
     for(auto i : SolInter) {
         Solucion->push_back(i);
     }
 
+    // Cálculo de los elementos nos seleccionados
     auto it = Solucion->cbegin();
     while(it != Solucion->cend()) {
         for(int i = 0; i < n; ++i) {
