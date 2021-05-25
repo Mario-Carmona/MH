@@ -1,0 +1,1 @@
+/usr/bin/c++ -fPIC   -shared -Wl,-soname,libant_lion_optimizer.h.so -o libant_lion_optimizer.h.so CMakeFiles/ant_lion_optimizer.h.dir/ant_lion_optimizer.cpp.o 

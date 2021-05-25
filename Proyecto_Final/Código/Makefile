@@ -56,17 +56,6 @@ CMAKE_BINARY_DIR = "/home/macarse/Escritorio/Universidad/2º Cuatrimestre/MH/Pra
 #=============================================================================
 # Targets provided globally by CMake.
 
-# Special rule for the target rebuild_cache
-rebuild_cache:
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Running CMake to regenerate build system..."
-	/usr/bin/cmake -S$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR)
-.PHONY : rebuild_cache
-
-# Special rule for the target rebuild_cache
-rebuild_cache/fast: rebuild_cache
-
-.PHONY : rebuild_cache/fast
-
 # Special rule for the target edit_cache
 edit_cache:
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Running CMake cache editor..."
@@ -77,6 +66,17 @@ edit_cache:
 edit_cache/fast: edit_cache
 
 .PHONY : edit_cache/fast
+
+# Special rule for the target rebuild_cache
+rebuild_cache:
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Running CMake to regenerate build system..."
+	/usr/bin/cmake -S$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR)
+.PHONY : rebuild_cache
+
+# Special rule for the target rebuild_cache
+rebuild_cache/fast: rebuild_cache
+
+.PHONY : rebuild_cache/fast
 
 # The main all target
 all: cmake_check_build_system
@@ -161,6 +161,46 @@ test: cmake_check_build_system
 test/fast:
 	$(MAKE) -f CMakeFiles/test.dir/build.make CMakeFiles/test.dir/build
 .PHONY : test/fast
+
+#=============================================================================
+# Target rules for targets named ant_lion_optimizer
+
+# Build rule for target.
+ant_lion_optimizer: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 ant_lion_optimizer
+.PHONY : ant_lion_optimizer
+
+# fast build rule for target.
+ant_lion_optimizer/fast:
+	$(MAKE) -f CMakeFiles/ant_lion_optimizer.dir/build.make CMakeFiles/ant_lion_optimizer.dir/build
+.PHONY : ant_lion_optimizer/fast
+
+ant_lion_optimizer.o: ant_lion_optimizer.cpp.o
+
+.PHONY : ant_lion_optimizer.o
+
+# target to build an object file
+ant_lion_optimizer.cpp.o:
+	$(MAKE) -f CMakeFiles/ant_lion_optimizer.dir/build.make CMakeFiles/ant_lion_optimizer.dir/ant_lion_optimizer.cpp.o
+.PHONY : ant_lion_optimizer.cpp.o
+
+ant_lion_optimizer.i: ant_lion_optimizer.cpp.i
+
+.PHONY : ant_lion_optimizer.i
+
+# target to preprocess a source file
+ant_lion_optimizer.cpp.i:
+	$(MAKE) -f CMakeFiles/ant_lion_optimizer.dir/build.make CMakeFiles/ant_lion_optimizer.dir/ant_lion_optimizer.cpp.i
+.PHONY : ant_lion_optimizer.cpp.i
+
+ant_lion_optimizer.s: ant_lion_optimizer.cpp.s
+
+.PHONY : ant_lion_optimizer.s
+
+# target to generate assembly for a file
+ant_lion_optimizer.cpp.s:
+	$(MAKE) -f CMakeFiles/ant_lion_optimizer.dir/build.make CMakeFiles/ant_lion_optimizer.dir/ant_lion_optimizer.cpp.s
+.PHONY : ant_lion_optimizer.cpp.s
 
 cec17.o: cec17.c.o
 
@@ -303,12 +343,16 @@ help:
 	@echo "... all (the default if no target is provided)"
 	@echo "... clean"
 	@echo "... depend"
-	@echo "... rebuild_cache"
 	@echo "... testsolis"
 	@echo "... cec17_test_func"
 	@echo "... testrandom"
 	@echo "... edit_cache"
 	@echo "... test"
+	@echo "... rebuild_cache"
+	@echo "... ant_lion_optimizer"
+	@echo "... ant_lion_optimizer.o"
+	@echo "... ant_lion_optimizer.i"
+	@echo "... ant_lion_optimizer.s"
 	@echo "... cec17.o"
 	@echo "... cec17.i"
 	@echo "... cec17.s"

@@ -1,0 +1,22 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/home/macarse/Escritorio/Universidad/2º Cuatrimestre/MH/Practicas/Proyecto_Final/Código/ant_lion_optimizer.cpp
+cec17.h
+/home/macarse/Escritorio/Universidad/2º Cuatrimestre/MH/Practicas/Proyecto_Final/Código/cec17.h
+iostream
+-
+vector
+-
+list
+-
+cmath
+-
+
+/home/macarse/Escritorio/Universidad/2º Cuatrimestre/MH/Practicas/Proyecto_Final/Código/cec17.h
+
