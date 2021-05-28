@@ -6,6 +6,7 @@ extern "C" {
 #include <list>
 #include <cmath>
 #include <random>
+#include <fstream>
 
 typedef std::list<int> ListInt;
 typedef std::vector<int> VecInt;
@@ -56,7 +57,7 @@ ListMatDouble::iterator RouletteWheel(ListMatDouble* fitness_ant_lion) {
     return elegido;
 }
 
-int obtenerW(int iteraciones, int maxIteraciones) {
+int obtenerW(double iteraciones, double maxIteraciones) {
     int w = 1;
 
     if(iteraciones > 0.1*maxIteraciones) {
@@ -80,15 +81,15 @@ int obtenerW(int iteraciones, int maxIteraciones) {
 
 
 
-void actualizarCyD(int iteraciones, int maxIteraciones, double* c, double* d) {
+void actualizarCyD(double iteraciones, double maxIteraciones, double* c, double* d) {
     int w = obtenerW(iteraciones, maxIteraciones);
-    double I = pow(10,w) * (iteraciones/maxIteraciones);
+    double I = pow((maxIteraciones/10),w) * (iteraciones/maxIteraciones);
 
     *c /= I;
     *d /= I;
 }
 
-VecDouble generarMovimientoRandom(const VecDouble* ant_lion, int iteraciones, double c, double d, double X, double min_X, double max_X) {
+VecDouble generarMovimientoRandom(const VecDouble* ant_lion, double c, double d, double X, double min_X, double max_X) {
     VecDouble movimiento;
     
     int dim = ant_lion->size();
@@ -177,7 +178,7 @@ bool compare_mayorFitness(const pair<vector<double>,double>& first, const pair<v
     }
 }
 
-void calcularX(double* X, double* min_X, double* max_X, int iteraciones) {
+void calcularX(double* X, double* min_X, double* max_X) {
     *X = *X + (2*((generarNumAleatorio(0,1) > 0.5) ? 1 : 0) - 1);
 
     if(*X > *max_X) {
@@ -188,9 +189,15 @@ void calcularX(double* X, double* min_X, double* max_X, int iteraciones) {
     }
 }
 
+void generarFuncionConvergencia(double c, double d) {
+    ofstream archivo;
+    archivo.open("func_convergencia.csv", ios::app);
+    archivo << max(-100.0,c) << "," << min(100.0,d) << ",\n";
+    archivo.close();
+}
+
 void ant_lion_optimizer(VecDouble* sol, double* fitness, const double MIN, const double MAX) {
-    //int tamPoblacion = obtenerTamanioPoblacion(sol->size());
-    int tamPoblacion = 10;
+    int tamPoblacion = obtenerTamanioPoblacion(sol->size());
 
     int dim = sol->size();
 
@@ -198,16 +205,18 @@ void ant_lion_optimizer(VecDouble* sol, double* fitness, const double MIN, const
     int evaluaciones = 0;
 
     int iteraciones = 1;
-    int maxIteraciones = evalucionesTotal/tamPoblacion;
+    int maxIteraciones = (double)evalucionesTotal/(double)tamPoblacion;
+    
     
 
     // Inicialización de la población
     MatDouble M_ant;
     ListMatDouble M_ant_lion;
-    auto it = M_ant_lion.begin();
-    for(int i = 0; i < tamPoblacion; ++i, ++it) {
-        M_ant.push_back(vector<double>());
-        M_ant_lion.push_back(pair<vector<double>,double>());
+    for(int i = 0; i < tamPoblacion; ++i) {
+        M_ant.push_back(VecDouble());
+        M_ant_lion.push_back(pair<VecDouble,double>(VecDouble(), 0.0));
+        auto it = M_ant_lion.end();
+        --it;
         for(int j = 0; j < dim; ++j) {
             M_ant[i].push_back( generarNumAleatorio(MIN, MAX) );
             it->first.push_back( generarNumAleatorio(MIN, MAX) );
@@ -215,7 +224,7 @@ void ant_lion_optimizer(VecDouble* sol, double* fitness, const double MIN, const
     }
 
     VecDouble Fitness_ant;
-    it = M_ant_lion.begin();
+    auto it = M_ant_lion.begin();
     for(int i = 0; i < M_ant.size(); ++i, ++it) {
         Fitness_ant.push_back(cec17_fitness(&M_ant[i][0]));
         ++evaluaciones;
@@ -231,18 +240,20 @@ void ant_lion_optimizer(VecDouble* sol, double* fitness, const double MIN, const
     double X = 0.0;
     double min_X = X;
     double max_X = X;
+    generarFuncionConvergencia(MIN, MAX);
 
     while(evaluaciones < evalucionesTotal) {
         // Actualizar X
-        calcularX(&X, &min_X, &max_X, iteraciones);
+        calcularX(&X, &min_X, &max_X);
 
         // Actualizar c y d
         double c = MIN;
         double d = MAX;
-        actualizarCyD(iteraciones, maxIteraciones, &c, &d);
+        actualizarCyD((double)iteraciones, (double)maxIteraciones, &c, &d);
+        generarFuncionConvergencia(c, d);
 
         // Genera movimiento aleatorio respecto del elite
-        VecDouble R_E = generarMovimientoRandom(&M_ant_lion.front().first, iteraciones, c, d, X, min_X, max_X);
+        VecDouble R_E = generarMovimientoRandom(&M_ant_lion.front().first, c, d, X, min_X, max_X);
 
         // Movimiento de cada hormiga
         for(int i = 0; i < M_ant.size(); ++i) {
@@ -250,8 +261,8 @@ void ant_lion_optimizer(VecDouble* sol, double* fitness, const double MIN, const
             antLionElegidas[i] = RouletteWheel(&M_ant_lion);
 
             // Genera movimiento aleatorio
-            VecDouble R_A = generarMovimientoRandom(&antLionElegidas[i]->first, iteraciones, c, d, X, min_X, max_X);
-        
+            VecDouble R_A = generarMovimientoRandom(&antLionElegidas[i]->first, c, d, X, min_X, max_X);
+
             // Actualizar posición de la hormiga
             actualizarPosicion(&M_ant[i], &R_A, &R_E, MIN, MAX);
         }
@@ -272,6 +283,7 @@ void ant_lion_optimizer(VecDouble* sol, double* fitness, const double MIN, const
         // Si se modifican las hormigas león se comprueba si se actualiza el elite
         if(modificado) {
             M_ant_lion.sort(compare_mayorFitness);
+            cout << M_ant_lion.front().second << endl;
         }
 
         ++iteraciones;
@@ -285,7 +297,6 @@ int main() {
     int seed = 1;
     srand(seed);
 
-    vector<double> sol;
     int dim = 10;
     int numRepeticiones = 10;
 

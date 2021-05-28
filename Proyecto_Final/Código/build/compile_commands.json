@@ -1,0 +1,32 @@
+[
+{
+  "directory": "/home/macarse/Escritorio/Universidad/2º Cuatrimestre/MH/Practicas/Proyecto_Final/Código/build",
+  "command": "/bin/g++-9    -g   -o CMakeFiles/testsolis.dir/testsolis.cc.o -c \"/home/macarse/Escritorio/Universidad/2º Cuatrimestre/MH/Practicas/Proyecto_Final/Código/testsolis.cc\"",
+  "file": "/home/macarse/Escritorio/Universidad/2º Cuatrimestre/MH/Practicas/Proyecto_Final/Código/testsolis.cc"
+},
+{
+  "directory": "/home/macarse/Escritorio/Universidad/2º Cuatrimestre/MH/Practicas/Proyecto_Final/Código/build",
+  "command": "/bin/gcc-9 -Dcec17_test_func_EXPORTS  -g -fPIC   -o CMakeFiles/cec17_test_func.dir/cec17_test_func.c.o   -c \"/home/macarse/Escritorio/Universidad/2º Cuatrimestre/MH/Practicas/Proyecto_Final/Código/cec17_test_func.c\"",
+  "file": "/home/macarse/Escritorio/Universidad/2º Cuatrimestre/MH/Practicas/Proyecto_Final/Código/cec17_test_func.c"
+},
+{
+  "directory": "/home/macarse/Escritorio/Universidad/2º Cuatrimestre/MH/Practicas/Proyecto_Final/Código/build",
+  "command": "/bin/gcc-9 -Dcec17_test_func_EXPORTS  -g -fPIC   -o CMakeFiles/cec17_test_func.dir/cec17.c.o   -c \"/home/macarse/Escritorio/Universidad/2º Cuatrimestre/MH/Practicas/Proyecto_Final/Código/cec17.c\"",
+  "file": "/home/macarse/Escritorio/Universidad/2º Cuatrimestre/MH/Practicas/Proyecto_Final/Código/cec17.c"
+},
+{
+  "directory": "/home/macarse/Escritorio/Universidad/2º Cuatrimestre/MH/Practicas/Proyecto_Final/Código/build",
+  "command": "/bin/g++-9    -g   -o CMakeFiles/testrandom.dir/testrandom.cc.o -c \"/home/macarse/Escritorio/Universidad/2º Cuatrimestre/MH/Practicas/Proyecto_Final/Código/testrandom.cc\"",
+  "file": "/home/macarse/Escritorio/Universidad/2º Cuatrimestre/MH/Practicas/Proyecto_Final/Código/testrandom.cc"
+},
+{
+  "directory": "/home/macarse/Escritorio/Universidad/2º Cuatrimestre/MH/Practicas/Proyecto_Final/Código/build",
+  "command": "/bin/g++-9    -g   -o CMakeFiles/test.dir/test.cc.o -c \"/home/macarse/Escritorio/Universidad/2º Cuatrimestre/MH/Practicas/Proyecto_Final/Código/test.cc\"",
+  "file": "/home/macarse/Escritorio/Universidad/2º Cuatrimestre/MH/Practicas/Proyecto_Final/Código/test.cc"
+},
+{
+  "directory": "/home/macarse/Escritorio/Universidad/2º Cuatrimestre/MH/Practicas/Proyecto_Final/Código/build",
+  "command": "/bin/g++-9    -g   -o CMakeFiles/ant_lion_optimizer.dir/ant_lion_optimizer.cpp.o -c \"/home/macarse/Escritorio/Universidad/2º Cuatrimestre/MH/Practicas/Proyecto_Final/Código/ant_lion_optimizer.cpp\"",
+  "file": "/home/macarse/Escritorio/Universidad/2º Cuatrimestre/MH/Practicas/Proyecto_Final/Código/ant_lion_optimizer.cpp"
+}
+]

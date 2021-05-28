@@ -1,0 +1,7 @@
+/home/macarse/Escritorio/Universidad/2º Cuatrimestre/MH/Practicas/Proyecto_Final/Código/build/CMakeFiles/testsolis.dir
+/home/macarse/Escritorio/Universidad/2º Cuatrimestre/MH/Practicas/Proyecto_Final/Código/build/CMakeFiles/cec17_test_func.dir
+/home/macarse/Escritorio/Universidad/2º Cuatrimestre/MH/Practicas/Proyecto_Final/Código/build/CMakeFiles/testrandom.dir
+/home/macarse/Escritorio/Universidad/2º Cuatrimestre/MH/Practicas/Proyecto_Final/Código/build/CMakeFiles/edit_cache.dir
+/home/macarse/Escritorio/Universidad/2º Cuatrimestre/MH/Practicas/Proyecto_Final/Código/build/CMakeFiles/test.dir
+/home/macarse/Escritorio/Universidad/2º Cuatrimestre/MH/Practicas/Proyecto_Final/Código/build/CMakeFiles/rebuild_cache.dir
+/home/macarse/Escritorio/Universidad/2º Cuatrimestre/MH/Practicas/Proyecto_Final/Código/build/CMakeFiles/ant_lion_optimizer.dir
