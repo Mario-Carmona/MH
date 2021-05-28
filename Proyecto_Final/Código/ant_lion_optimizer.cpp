@@ -5,38 +5,51 @@ extern "C" {
 #include <vector>
 #include <list>
 #include <cmath>
+#include <random>
 
 typedef std::list<int> ListInt;
 typedef std::vector<int> VecInt;
 typedef std::vector<double> VecDouble;
 typedef std::vector<std::vector<double>> MatDouble;
+typedef std::list<std::pair<std::vector<double>,double>> ListMatDouble;
 
 using namespace std;
 
-double generarAleDouble() {
-    const double MIN = -100;
-    const double MAX = 100;
-
+double generarNumAleatorio(double MIN, double MAX) {
     return MIN + (double)(rand()) / ((double)(RAND_MAX/(MAX - MIN)));
 }
 
-int RouletteWheel(const VecDouble* Fitness_ant_lion) {
-    int numParticipantes = 3;
+ListMatDouble::iterator RouletteWheel(ListMatDouble* fitness_ant_lion) {
+    int numIndividuos = fitness_ant_lion->size();
 
-    ListInt participantes;
-    while(participantes.size() < numParticipantes) {
-        participantes.push_back(rand() % Fitness_ant_lion->size());
-        participantes.sort();
-        participantes.unique();
+    // Calcula el fitness acumulado total
+    double fitnessTotal = 0.0;
+    for(auto it = fitness_ant_lion->begin(); it != fitness_ant_lion->end(); ++it) {
+        fitnessTotal += it->second;
     }
 
-    int elegido;
-    double fitnessElegido = -1;
-    int i = 0;
-    for(auto it = participantes.cbegin(); it != participantes.cend(); ++it, ++i) {
-        if(fitnessElegido < (*Fitness_ant_lion)[*it]) {
-            fitnessElegido = (*Fitness_ant_lion)[*it];
-            elegido = i;
+    // Calcular el peso de cada individuo
+    VecDouble pesos;
+    for(auto it = fitness_ant_lion->begin(); it != fitness_ant_lion->end(); ++it) {
+        pesos.push_back(it->second / fitnessTotal);
+    }
+
+    // Calcular la probabilidades de cada individuo
+    VecDouble probabilidades;
+    probabilidades.push_back(pesos[0]);
+    for(int i = 1; i < (numIndividuos-1); ++i) {
+        probabilidades.push_back(probabilidades[i-1] + pesos[i]);
+    }
+    // Se añade de esta forma para evitar problemas de redondeo
+    probabilidades.push_back(1.0);
+
+    // Generar un número aleatorio entre [0,1]
+    double prob = generarNumAleatorio(0, 1);
+
+    auto elegido = fitness_ant_lion->begin();
+    for(int i = 0; i < (numIndividuos-1); ++i, ++elegido) {
+        if(probabilidades[i] < prob && prob < probabilidades[i+1]) {
+            break;
         }
     }
 
@@ -65,49 +78,55 @@ int obtenerW(int iteraciones, int maxIteraciones) {
     return w;
 }
 
-void actualizarCyD(int iteraciones, int maxIteraciones, double* c, double* d) {
-    const double MAX = 100;
-    const double MIN = -100;
-    
-    int w = obtenerW(iteraciones, maxIteraciones);
-    double I = pow((int)(maxIteraciones/10) , w) * (iteraciones/maxIteraciones);
 
-    *c = max(MIN, MIN / I);
-    *d = min(MAX, MAX / I);
+
+void actualizarCyD(int iteraciones, int maxIteraciones, double* c, double* d) {
+    int w = obtenerW(iteraciones, maxIteraciones);
+    double I = pow(10,w) * (iteraciones/maxIteraciones);
+
+    *c /= I;
+    *d /= I;
 }
 
-void generarMovimientoRandom(VecDouble* ant, const VecDouble* ant_lion, const VecDouble* elite, double c_t, double d_t) {
-    const double a = -100;
-    const double b = 100;
+VecDouble generarMovimientoRandom(const VecDouble* ant_lion, int iteraciones, double c, double d, double X, double min_X, double max_X) {
+    VecDouble movimiento;
     
-    for(int i = 0; i < ant_lion->size(); ++i) {
-        double c_i, d_i;
+    int dim = ant_lion->size();
+    for(int i = 0; i < dim; ++i) {
+        double a = min_X;
+        double b = max_X;
+        double c_i = c + (*ant_lion)[i];
+        double d_i = d + (*ant_lion)[i];
 
-        // Cálculo del movimiento respecto de la hormiga león elegida
-        c_i = (*ant_lion)[i] + c_t;
-        d_i = (*ant_lion)[i] + d_t;
+        double X_norma = (((X-a)*(d_i-c_i)) / (b-a)) + c_i ;
 
-        double R_A = (((*ant)[i] - a) * (b - c_i)) / (d_i - a) + b;
+        movimiento.push_back(X_norma);
+    }
 
-        // Cálculo del movimiento respecto de la mejor hormiga león
-        c_i = (*elite)[i] + c_t;
-        d_i = (*elite)[i] + d_t;
+    return movimiento;
+}
 
-        double R_E = (((*ant)[i] - a) * (b - c_i)) / (d_i - a) + b;
-
-        // Actualizar la posición de la hormiga de forma elitista
-        (*ant)[i] = (R_A + R_E) / 2;
+void actualizarPosicion(VecDouble* ant, const VecDouble* R_A, const VecDouble* R_E, const double MIN, const double MAX) {
+    int dim = ant->size();
+    for(int i = 0; i < dim; ++i) {
+        (*ant)[i] = ((*R_A)[i] + (*R_E)[i]) / 2;
+        if((*ant)[i] > MIN) {
+            (*ant)[i] = MIN;
+        }
+        if((*ant)[i] < MAX) {
+            (*ant)[i] = MAX;
+        }
     }
 }
 
-bool replaceAntLion(MatDouble* M_ant_lion, VecDouble* Fitness_ant_lion, const VecInt* antLionElegidas, const MatDouble* M_ant, const VecDouble* Fitness_ant) {
+bool replaceAntLion(ListMatDouble* M_ant_lion, vector<ListMatDouble::iterator>* antLionElegidas, const MatDouble* M_ant, const VecDouble* Fitness_ant) {
     bool modificado = false;
     
     for(int i = 0; i < M_ant->size(); ++i) {
-        int elegida = (*antLionElegidas)[i];
-        if((*Fitness_ant)[i] < (*Fitness_ant_lion)[elegida]) {
-            (*Fitness_ant_lion)[elegida] = (*Fitness_ant)[i];
-            (*M_ant_lion)[elegida] = (*M_ant)[i];
+        auto elegida = (*antLionElegidas)[i];
+        if((*Fitness_ant)[i] < elegida->second) {
+            elegida->second = (*Fitness_ant)[i];
+            elegida->first = (*M_ant)[i];
             modificado = true;
         }
     }
@@ -133,86 +152,133 @@ void actualizarElite(const MatDouble* M_ant_lion, const VecDouble* Fitness_ant_l
     }
 }
 
-void ant_lion_optimizer(VecDouble* sol, double* fitness) {
+int obtenerTamanioPoblacion(int dim) {
+    int tam = 30;
+
+    switch (dim)
+    {
+    case 30:
+        tam += 10;
+        break;
+    case 50:
+        tam += 20;
+        break;
+    }
+
+    return tam;
+}
+
+bool compare_mayorFitness(const pair<vector<double>,double>& first, const pair<vector<double>,double>& second) {
+    if(first.second >= second.second) {
+        return true;
+    }
+    else {
+        return false;
+    }
+}
+
+void calcularX(double* X, double* min_X, double* max_X, int iteraciones) {
+    *X = *X + (2*((generarNumAleatorio(0,1) > 0.5) ? 1 : 0) - 1);
+
+    if(*X > *max_X) {
+        *max_X = *X;
+    }
+    if(*X < *min_X) {
+        *min_X = *X;
+    }
+}
+
+void ant_lion_optimizer(VecDouble* sol, double* fitness, const double MIN, const double MAX) {
+    //int tamPoblacion = obtenerTamanioPoblacion(sol->size());
     int tamPoblacion = 10;
 
-    int evalucionesTotal = 10000 * sol->size();
-    int evaluacionesPorIter = 10;
-    int maxIteraciones = evalucionesTotal/evaluacionesPorIter;
+    int dim = sol->size();
+
+    int evalucionesTotal = 10000 * dim;
+    int evaluaciones = 0;
+
+    int iteraciones = 1;
+    int maxIteraciones = evalucionesTotal/tamPoblacion;
     
-    int iteraciones = 0;
 
     // Inicialización de la población
     MatDouble M_ant;
-    MatDouble M_ant_lion;
-    for(int i = 0; i < tamPoblacion; ++i) {
+    ListMatDouble M_ant_lion;
+    auto it = M_ant_lion.begin();
+    for(int i = 0; i < tamPoblacion; ++i, ++it) {
         M_ant.push_back(vector<double>());
-        M_ant_lion.push_back(vector<double>());
-        for(int j = 0; j < sol->size(); ++j) {
-            M_ant[i].push_back( generarAleDouble() );
-            M_ant_lion[i].push_back( generarAleDouble() );
+        M_ant_lion.push_back(pair<vector<double>,double>());
+        for(int j = 0; j < dim; ++j) {
+            M_ant[i].push_back( generarNumAleatorio(MIN, MAX) );
+            it->first.push_back( generarNumAleatorio(MIN, MAX) );
         }
     }
 
     VecDouble Fitness_ant;
-    VecDouble Fitness_ant_lion;
-    for(int i = 0; i < M_ant.size(); ++i) {
+    it = M_ant_lion.begin();
+    for(int i = 0; i < M_ant.size(); ++i, ++it) {
         Fitness_ant.push_back(cec17_fitness(&M_ant[i][0]));
-        Fitness_ant_lion.push_back(cec17_fitness(&M_ant_lion[i][0]));
+        ++evaluaciones;
+        it->second = cec17_fitness(&it->first[0]);
+        ++evaluaciones;
     }
 
-    ++iteraciones;
-    ++iteraciones;
-
-
-    VecDouble elite;
-    double fitnessElite = INFINITY;
-    int elegido;
-
-    for(int i = 0; i < M_ant_lion.size(); ++i) {
-        if(Fitness_ant_lion[i] < fitnessElite) {
-            fitnessElite = Fitness_ant_lion[i];
-            elegido = i;
-        }
-    }
-    elite = M_ant_lion[elegido];
+    M_ant_lion.sort(compare_mayorFitness);
 
     // Hormigas león elegidas
-    VecInt antLionElegidas(M_ant.size());
-    
-    while(iteraciones < maxIteraciones) {
+    vector<ListMatDouble::iterator> antLionElegidas(M_ant.size());
+
+    double X = 0.0;
+    double min_X = X;
+    double max_X = X;
+
+    while(evaluaciones < evalucionesTotal) {
+        // Actualizar X
+        calcularX(&X, &min_X, &max_X, iteraciones);
+
+        // Actualizar c y d
+        double c = MIN;
+        double d = MAX;
+        actualizarCyD(iteraciones, maxIteraciones, &c, &d);
+
+        // Genera movimiento aleatorio respecto del elite
+        VecDouble R_E = generarMovimientoRandom(&M_ant_lion.front().first, iteraciones, c, d, X, min_X, max_X);
+
         // Movimiento de cada hormiga
         for(int i = 0; i < M_ant.size(); ++i) {
             // Seleccionar una hormiga león
-            antLionElegidas[i] = RouletteWheel(&Fitness_ant_lion);
-
-            // Actualizar c y d
-            double c, d;
-            actualizarCyD(iteraciones, maxIteraciones, &c, &d);
+            antLionElegidas[i] = RouletteWheel(&M_ant_lion);
 
             // Genera movimiento aleatorio
-            VecDouble desplazamiento;
-            generarMovimientoRandom(&M_ant[i], &M_ant_lion[antLionElegidas[i]], &elite, c, d);
+            VecDouble R_A = generarMovimientoRandom(&antLionElegidas[i]->first, iteraciones, c, d, X, min_X, max_X);
+        
+            // Actualizar posición de la hormiga
+            actualizarPosicion(&M_ant[i], &R_A, &R_E, MIN, MAX);
         }
 
         // Calcular fitness de todas las hormigas
         for(int i = 0; i < M_ant.size(); ++i) {
             Fitness_ant[i] = cec17_fitness(&M_ant[i][0]);
+            ++evaluaciones;
+
+            if(evaluaciones >= evalucionesTotal) {
+                break;
+            }
+        }
+
+        // Comprobar si la hormiga león se come a la hormiga
+        bool modificado = replaceAntLion(&M_ant_lion, &antLionElegidas, &M_ant, &Fitness_ant);
+
+        // Si se modifican las hormigas león se comprueba si se actualiza el elite
+        if(modificado) {
+            M_ant_lion.sort(compare_mayorFitness);
         }
 
         ++iteraciones;
-
-        // Comprobar si la hormiga león se come a la hormiga
-        bool modificado = replaceAntLion(&M_ant_lion, &Fitness_ant_lion, &antLionElegidas, &M_ant, &Fitness_ant);
-
-        // Si se modifican las hormigar león se comprueba si se actualiza el elite
-        if(modificado) {
-            actualizarElite(&M_ant_lion, &Fitness_ant_lion, &elite, &fitnessElite);
-        }
     }
 
-    (*sol) = elite;
-    (*fitness) = fitnessElite;
+    (*sol) = M_ant_lion.front().first;
+    (*fitness) = M_ant_lion.front().second;
 }
 
 int main() {
@@ -220,16 +286,22 @@ int main() {
     srand(seed);
 
     vector<double> sol;
-    int dim = 30;
+    int dim = 10;
+    int numRepeticiones = 10;
 
     for (int funcid = 1; funcid <= 30; funcid++) {
-        vector<double> sol(dim);
-        double fitness;
+        for(int i = 0; i < numRepeticiones; ++i) {
+            vector<double> sol(dim);
+            double fitness;
 
-        cec17_init("ant_lion", funcid, dim);
+            cec17_init("ant_lion", funcid, dim);
 
-        ant_lion_optimizer(&sol, &fitness);
+            double MIN = -100.0;
+            double MAX = 100.0;
 
-        cout <<"Fitness[F" <<funcid <<"]: " << scientific <<cec17_error(fitness) <<endl;
+            ant_lion_optimizer(&sol, &fitness, MIN, MAX);
+
+            cout <<"Fitness[F" <<funcid <<"]: " << scientific <<cec17_error(fitness) <<endl;
+        }
     }
 }
