@@ -163,6 +163,19 @@ test/fast:
 .PHONY : test/fast
 
 #=============================================================================
+# Target rules for targets named ant_lion_optimizer_memetico
+
+# Build rule for target.
+ant_lion_optimizer_memetico: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 ant_lion_optimizer_memetico
+.PHONY : ant_lion_optimizer_memetico
+
+# fast build rule for target.
+ant_lion_optimizer_memetico/fast:
+	$(MAKE) -f CMakeFiles/ant_lion_optimizer_memetico.dir/build.make CMakeFiles/ant_lion_optimizer_memetico.dir/build
+.PHONY : ant_lion_optimizer_memetico/fast
+
+#=============================================================================
 # Target rules for targets named ant_lion_optimizer
 
 # Build rule for target.
@@ -201,6 +214,33 @@ ant_lion_optimizer.s: ant_lion_optimizer.cpp.s
 ant_lion_optimizer.cpp.s:
 	$(MAKE) -f CMakeFiles/ant_lion_optimizer.dir/build.make CMakeFiles/ant_lion_optimizer.dir/ant_lion_optimizer.cpp.s
 .PHONY : ant_lion_optimizer.cpp.s
+
+ant_lion_optimizer_memetico.o: ant_lion_optimizer_memetico.cpp.o
+
+.PHONY : ant_lion_optimizer_memetico.o
+
+# target to build an object file
+ant_lion_optimizer_memetico.cpp.o:
+	$(MAKE) -f CMakeFiles/ant_lion_optimizer_memetico.dir/build.make CMakeFiles/ant_lion_optimizer_memetico.dir/ant_lion_optimizer_memetico.cpp.o
+.PHONY : ant_lion_optimizer_memetico.cpp.o
+
+ant_lion_optimizer_memetico.i: ant_lion_optimizer_memetico.cpp.i
+
+.PHONY : ant_lion_optimizer_memetico.i
+
+# target to preprocess a source file
+ant_lion_optimizer_memetico.cpp.i:
+	$(MAKE) -f CMakeFiles/ant_lion_optimizer_memetico.dir/build.make CMakeFiles/ant_lion_optimizer_memetico.dir/ant_lion_optimizer_memetico.cpp.i
+.PHONY : ant_lion_optimizer_memetico.cpp.i
+
+ant_lion_optimizer_memetico.s: ant_lion_optimizer_memetico.cpp.s
+
+.PHONY : ant_lion_optimizer_memetico.s
+
+# target to generate assembly for a file
+ant_lion_optimizer_memetico.cpp.s:
+	$(MAKE) -f CMakeFiles/ant_lion_optimizer_memetico.dir/build.make CMakeFiles/ant_lion_optimizer_memetico.dir/ant_lion_optimizer_memetico.cpp.s
+.PHONY : ant_lion_optimizer_memetico.cpp.s
 
 cec17.o: cec17.c.o
 
@@ -348,11 +388,15 @@ help:
 	@echo "... testrandom"
 	@echo "... edit_cache"
 	@echo "... test"
+	@echo "... ant_lion_optimizer_memetico"
 	@echo "... rebuild_cache"
 	@echo "... ant_lion_optimizer"
 	@echo "... ant_lion_optimizer.o"
 	@echo "... ant_lion_optimizer.i"
 	@echo "... ant_lion_optimizer.s"
+	@echo "... ant_lion_optimizer_memetico.o"
+	@echo "... ant_lion_optimizer_memetico.i"
+	@echo "... ant_lion_optimizer_memetico.s"
 	@echo "... cec17.o"
 	@echo "... cec17.i"
 	@echo "... cec17.s"

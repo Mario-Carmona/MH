@@ -26,6 +26,11 @@
 },
 {
   "directory": "/home/macarse/Escritorio/Universidad/2º Cuatrimestre/MH/Practicas/Proyecto_Final/Código/build",
+  "command": "/bin/g++-9    -g   -o CMakeFiles/ant_lion_optimizer_memetico.dir/ant_lion_optimizer_memetico.cpp.o -c \"/home/macarse/Escritorio/Universidad/2º Cuatrimestre/MH/Practicas/Proyecto_Final/Código/ant_lion_optimizer_memetico.cpp\"",
+  "file": "/home/macarse/Escritorio/Universidad/2º Cuatrimestre/MH/Practicas/Proyecto_Final/Código/ant_lion_optimizer_memetico.cpp"
+},
+{
+  "directory": "/home/macarse/Escritorio/Universidad/2º Cuatrimestre/MH/Practicas/Proyecto_Final/Código/build",
   "command": "/bin/g++-9    -g   -o CMakeFiles/ant_lion_optimizer.dir/ant_lion_optimizer.cpp.o -c \"/home/macarse/Escritorio/Universidad/2º Cuatrimestre/MH/Practicas/Proyecto_Final/Código/ant_lion_optimizer.cpp\"",
   "file": "/home/macarse/Escritorio/Universidad/2º Cuatrimestre/MH/Practicas/Proyecto_Final/Código/ant_lion_optimizer.cpp"
 }

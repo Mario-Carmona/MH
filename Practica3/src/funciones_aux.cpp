@@ -78,6 +78,20 @@ double busquedaLocal_PM(ListInt *Solucion, VecInt *noSeleccionados, const MatDou
         Solucion->push_back(i.first);
     }
 
+    noSeleccionados->clear();
+    for(int i = 0; i < (distancias->size()+1); ++i) {
+        noSeleccionados->push_back(i);
+    }
+    for(int i : (*Solucion)) {
+        auto it = noSeleccionados->begin();
+        for(int j = 0; j < noSeleccionados->size(); ++j, ++it) {
+            if((*noSeleccionados)[j] == i) {
+                noSeleccionados->erase(it);
+                break;
+            }
+        }
+    }
+
     return coste_actual;
 }
 
@@ -1053,6 +1067,20 @@ double ES(VecInt *Solucion, VecInt *noSeleccionados, const MatDouble *distancias
         Solucion->push_back(i);
     }
 
+    noSeleccionados->clear();
+    for(int i = 0; i < (distancias->size()+1); ++i) {
+        noSeleccionados->push_back(i);
+    }
+    for(int i : (*Solucion)) {
+        auto it = noSeleccionados->begin();
+        for(int j = 0; j < noSeleccionados->size(); ++j, ++it) {
+            if((*noSeleccionados)[j] == i) {
+                noSeleccionados->erase(it);
+                break;
+            }
+        }
+    }
+
     (*iter) = evaluaciones;
 
     return mejorFitness;
@@ -1216,6 +1244,20 @@ double ES_inte(VecInt *Solucion, VecInt *noSeleccionados, const MatDouble *dista
     Solucion->clear();
     for(auto i : mejorSolucion) {
         Solucion->push_back(i.first);
+    }
+
+    noSeleccionados->clear();
+    for(int i = 0; i < (distancias->size()+1); ++i) {
+        noSeleccionados->push_back(i);
+    }
+    for(int i : (*Solucion)) {
+        auto it = noSeleccionados->begin();
+        for(int j = 0; j < noSeleccionados->size(); ++j, ++it) {
+            if((*noSeleccionados)[j] == i) {
+                noSeleccionados->erase(it);
+                break;
+            }
+        }
     }
 
     (*iter) = evaluaciones;

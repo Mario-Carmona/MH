@@ -3,5 +3,6 @@
 /home/macarse/Escritorio/Universidad/2º Cuatrimestre/MH/Practicas/Proyecto_Final/Código/build/CMakeFiles/testrandom.dir
 /home/macarse/Escritorio/Universidad/2º Cuatrimestre/MH/Practicas/Proyecto_Final/Código/build/CMakeFiles/edit_cache.dir
 /home/macarse/Escritorio/Universidad/2º Cuatrimestre/MH/Practicas/Proyecto_Final/Código/build/CMakeFiles/test.dir
+/home/macarse/Escritorio/Universidad/2º Cuatrimestre/MH/Practicas/Proyecto_Final/Código/build/CMakeFiles/ant_lion_optimizer_memetico.dir
 /home/macarse/Escritorio/Universidad/2º Cuatrimestre/MH/Practicas/Proyecto_Final/Código/build/CMakeFiles/rebuild_cache.dir
 /home/macarse/Escritorio/Universidad/2º Cuatrimestre/MH/Practicas/Proyecto_Final/Código/build/CMakeFiles/ant_lion_optimizer.dir
