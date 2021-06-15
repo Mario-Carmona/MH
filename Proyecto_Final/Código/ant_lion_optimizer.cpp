@@ -1,3 +1,15 @@
+/**
+ * @file ant_lion_optimizer.cpp
+ * @author Mario Carmona Segovia (mcs2000carmona@correo.ugr.es)
+ * @brief Implementación del algoritmo evolutivo
+ * @version 0.1
+ * @date 2021-06-15
+ * 
+ * @copyright Copyright (c) 2021
+ * 
+ */
+
+
 extern "C" {
 #include "cec17.h"
 }
@@ -17,34 +29,44 @@ typedef std::list<std::pair<std::vector<double>,double>> ListMatDouble;
 using namespace std;
 
 
+/**
+ * @brief Metodo de selección de la ruleta
+ * 
+ * @param M_ant_lion Lista de ant lion
+ * @param gen Generador de número aleatorios
+ * @return ListMatDouble::const_iterator Puntero al ant lion seleccionado
+ */
 ListMatDouble::const_iterator RouletteWheel(const ListMatDouble& M_ant_lion, mt19937& gen) {
+    // Obtenemos el número de ant lion
     int numIndividuos = M_ant_lion.size();
 
-    // Calcula el fitness acumulado total
+    // Calcular el fitness acumulado total
     double fitnessTotal = 0.0;
     for(auto it = M_ant_lion.begin(); it != M_ant_lion.end(); ++it) {
         fitnessTotal += it->second;
     }
 
-    // Calcular el peso de cada individuo
+    // Calcular el peso de cada ant lion
     VecDouble pesos;
     for(auto it = M_ant_lion.begin(); it != M_ant_lion.end(); ++it) {
         pesos.push_back(it->second / fitnessTotal);
     }
 
-    // Calcular la probabilidades de cada individuo
+    // Calcular las probabilidades de cada ant lion
     VecDouble probabilidades;
     probabilidades.push_back(pesos[0]);
     for(int i = 1; i < (numIndividuos-1); ++i) {
         probabilidades.push_back(probabilidades[i-1] + pesos[i]);
     }
-    // Se añade de esta forma para evitar problemas de redondeo
+
+    // Se añade la última probabilidad acumulada de esta forma para evitar problemas de redondeo
     probabilidades.push_back(1.0);
 
-    // Generar un número aleatorio entre [0,1]
+    // Generar un número aleatorio en el rango [0,1]
     uniform_real_distribution<> dis(0.0, 1.0);
     double prob = dis(gen);
 
+    // Selección del ant lion
     auto elegido = M_ant_lion.begin();
     for(int i = 0; i < (numIndividuos-1); ++i, ++elegido) {
         if(probabilidades[i] < prob && prob < probabilidades[i+1]) {
@@ -55,6 +77,13 @@ ListMatDouble::const_iterator RouletteWheel(const ListMatDouble& M_ant_lion, mt1
     return elegido;
 }
 
+/**
+ * @brief Función para obtener el valor de w
+ * 
+ * @param iteraciones Iteración actual
+ * @param maxIteraciones Número máximo de iteraciones
+ * @return int Valor de w
+ */
 int obtenerW(double iteraciones, double maxIteraciones) {
     int w = 1;
 
@@ -77,6 +106,12 @@ int obtenerW(double iteraciones, double maxIteraciones) {
     return w;
 }
 
+/**
+ * @brief Función para obtener el tamaño de la población a usar en el algoritmo
+ * 
+ * @param dim Dimensión de cada individuo
+ * @return int Tamaño de la población
+ */
 int obtenerTamanioPoblacion(int dim) {
     int tam = 30;
 
@@ -93,6 +128,14 @@ int obtenerTamanioPoblacion(int dim) {
     return tam;
 }
 
+/**
+ * @brief Función de comparación para las poblaciones
+ * 
+ * @param first Primer individuo
+ * @param second Segundo individuo
+ * @return true Si el primero tiene menor fitness que el segundo 
+ * @return false Si el segundo tiene menor fitness que el primero
+ */
 bool compare_menorFitness(const pair<vector<double>,double>& first, const pair<vector<double>,double>& second) {
     if(first.second <= second.second) {
         return true;
@@ -109,6 +152,23 @@ void generarFuncionConvergencia(double c, double d) {
     archivo.close();
 }
 
+/**
+ * @brief Función para actualizar la posición de las hormigas en cada iteración
+ * 
+ * @param M_ant Lista de hormigas
+ * @param M_ant_lion Lista de ant lion
+ * @param iteraciones Iteración actual
+ * @param incremento 
+ * @param lb Cota inferior del rango de movimiento
+ * @param ub Cota superior del rango de movimiento
+ * @param X 
+ * @param min_X 
+ * @param max_X 
+ * @param X_e 
+ * @param min_X_e 
+ * @param max_X_e 
+ * @param gen 
+ */
 void actualizarAnt(ListMatDouble& M_ant, const ListMatDouble& M_ant_lion, int iteraciones, double incremento, const VecDouble& lb, const VecDouble& ub, double& X, double& min_X, double& max_X, double& X_e, double& min_X_e, double& max_X_e, mt19937& gen) {
     for(auto it = M_ant.begin(); it != M_ant.end(); ++it) {
         auto elegido = RouletteWheel(M_ant_lion, gen);
