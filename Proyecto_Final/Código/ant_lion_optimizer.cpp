@@ -169,7 +169,7 @@ void generarFuncionConvergencia(double c, double d) {
  * @param max_X_e 
  * @param gen 
  */
-void actualizarAnt(ListMatDouble& M_ant, const ListMatDouble& M_ant_lion, int iteraciones, double incremento, const VecDouble& lb, const VecDouble& ub, double& X, double& min_X, double& max_X, double& X_e, double& min_X_e, double& max_X_e, mt19937& gen) {
+void actualizarAnt(ListMatDouble& M_ant, const ListMatDouble& M_ant_lion, int iteraciones, double incremento, const VecDouble& lb, const VecDouble& ub, vector<double>& X, vector<double>& min_X, vector<double>& max_X, vector<double>& X_e, vector<double>& min_X_e, vector<double>& max_X_e, mt19937& gen) {
     for(auto it = M_ant.begin(); it != M_ant.end(); ++it) {
         auto elegido = RouletteWheel(M_ant_lion, gen);
 
@@ -204,27 +204,27 @@ void actualizarAnt(ListMatDouble& M_ant, const ListMatDouble& M_ant_lion, int it
             // Actualizar X
             probabilidad = dis(gen);
             double valor = (probabilidad > 0.5) ? 1.0 : 0.0;
-            X = X + (2.0*valor - 1.0);
-            if(min_X > X) {
-                min_X = X;
+            X[j] = X[j] + (2.0*valor - 1.0);
+            if(min_X[j] > X[j]) {
+                min_X[j] = X[j];
             }
-            if(max_X < X) {
-                max_X = X;
+            if(max_X[j] < X[j]) {
+                max_X[j] = X[j];
             }
 
             // Actualizar X_e
             probabilidad = dis(gen);
             valor = (probabilidad > 0.5) ? 1.0 : 0.0;
-            X_e = X_e + (2.0*valor - 1.0);
-            if(min_X_e > X_e) {
-                min_X_e = X_e;
+            X_e[j] = X_e[j] + (2.0*valor - 1.0);
+            if(min_X_e[j] > X_e[j]) {
+                min_X_e[j] = X_e[j];
             }
-            if(max_X_e < X_e) {
-                max_X_e = X_e;
+            if(max_X_e[j] < X_e[j]) {
+                max_X_e[j] = X_e[j];
             }
 
-            double X_random_walk = (((X-min_X)*(d_i - c_i)) / (max_X - min_X)) + c_i;
-            double X_e_random_walk = (((X_e-min_X_e)*(d_e - c_e)) / (max_X_e - min_X_e)) + c_e;
+            double X_random_walk = (((X[j]-min_X[j])*(d_i - c_i)) / (max_X[j] - min_X[j])) + c_i;
+            double X_e_random_walk = (((X_e[j]-min_X_e[j])*(d_e - c_e)) / (max_X_e[j] - min_X_e[j])) + c_e;
 
             it->first[j] = (X_random_walk + X_e_random_walk) / 2.0;
 
@@ -329,13 +329,13 @@ void ant_lion_optimizer(VecDouble& sol, double& fitness, const VecDouble& lb, co
     VecDouble elite = M_ant_lion.front().first;
     double fitnessElite = M_ant_lion.front().second;
 
-    double X = 0.0;
-    double min_X = X;
-    double max_X = X;
+    vector<double> X(dim,0.0);
+    vector<double> min_X = X;
+    vector<double> max_X = X;
 
-    double X_e = 0.0;
-    double min_X_e = X_e;
-    double max_X_e = X_e;
+    vector<double> X_e(dim,0.0);
+    vector<double> min_X_e = X_e;
+    vector<double> max_X_e = X_e;
 
 
     while(evaluaciones < evalucionesTotal) {
