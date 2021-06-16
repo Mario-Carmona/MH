@@ -218,28 +218,9 @@ void actualizarAnt(ListMatDouble& M_ant, const ListMatDouble& M_ant_lion, int it
             double d_e = ub[j] - ((double)iteraciones*incremento);
 
             uniform_real_distribution<> dis(0.0, 1.0);
-            double probabilidad = dis(gen);
-            if(probabilidad < 0.5) {
-                c_i = c_i + elegido->first[j];
-                c_e = c_e + M_ant_lion.front().first[j];
-            }
-            else {
-                c_i = -c_i + elegido->first[j];
-                c_e = -c_e + M_ant_lion.front().first[j];
-            }
-
-            probabilidad = dis(gen);
-            if(probabilidad >= 0.5) {
-                d_i = d_i + elegido->first[j];
-                d_e = d_e + M_ant_lion.front().first[j];
-            }
-            else {
-                d_i = -d_i + elegido->first[j];
-                d_e = -d_e + M_ant_lion.front().first[j];
-            }
 
             // Actualizar X
-            probabilidad = dis(gen);
+            double probabilidad = dis(gen);
             double valor = (probabilidad > 0.5) ? 1.0 : 0.0;
             X[j] = X[j] + (2.0*valor - 1.0);
             if(min_X[j] > X[j]) {
@@ -457,7 +438,7 @@ int main() {
             vector<double> sol(dim);
             double fitness;
 
-            cec17_init("ant_lion_memetico", funcid, dim);
+            cec17_init("ant_lion_memetico_modificado", funcid, dim);
 
             ant_lion_optimizer_memetico(sol, fitness, lb, ub, gen);
 
