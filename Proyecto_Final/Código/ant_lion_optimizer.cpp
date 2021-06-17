@@ -199,11 +199,11 @@ void actualizarAnt(ListMatDouble& M_ant, ListMatDouble& M_ant_lion, double itera
             lb[j] = max(minValue,lb[j] / I);
             ub[j] = min(maxValue,ub[j] / I);
 
-            // Calculo del rango de movimiento en la iteración actual de la ant lion seleccionada
+            // Cálculo del rango de movimiento en la iteración actual de la ant lion seleccionada
             double c_i = lb[j];
             double d_i = ub[j];
 
-            // Calculo del rango de movimiento en la iteración actual de la mejor ant lion
+            // Cálculo del rango de movimiento en la iteración actual de la mejor ant lion
             double c_e = lb[j];
             double d_e = ub[j];
 
@@ -254,13 +254,13 @@ void actualizarAnt(ListMatDouble& M_ant, ListMatDouble& M_ant_lion, double itera
                 max_X_e[j] = X_e[j];
             }
 
-            // Calculo del movimiento aleatorio respecto del ant lion seleccionado
+            // Cálculo del movimiento aleatorio respecto del ant lion seleccionado
             double X_random_walk = (((X[j]-min_X[j])*(d_i - c_i)) / (max_X[j] - min_X[j])) + c_i;
             
-            // Calculo del movimiento aleatorio respecto del mejor ant lion
+            // Cálculo del movimiento aleatorio respecto del mejor ant lion
             double X_e_random_walk = (((X_e[j]-min_X_e[j])*(d_e - c_e)) / (max_X_e[j] - min_X_e[j])) + c_e;
 
-            // Calculo del movimiento aleatorio con el elitismo y actualización del valor
+            // Cálculo del movimiento aleatorio con el elitismo y actualización del valor
             // de la variable de la hormiga seleccionada
             it->first[j] = (X_random_walk + X_e_random_walk) / 2.0;
 
