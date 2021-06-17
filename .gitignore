@@ -30,3 +30,6 @@
 *.exe
 *.out
 *.app
+
+
+./Proyecto_Final/Código/result*/*
