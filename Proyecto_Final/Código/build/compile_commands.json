@@ -26,6 +26,16 @@
 },
 {
   "directory": "/home/macarse/Escritorio/Universidad/2º Cuatrimestre/MH/Practicas/Proyecto_Final/Código/build",
+  "command": "/bin/g++-9    -g   -o CMakeFiles/ant_lion_optimizer_memetico_modificado.dir/ant_lion_optimizer_memetico_modificado.cpp.o -c \"/home/macarse/Escritorio/Universidad/2º Cuatrimestre/MH/Practicas/Proyecto_Final/Código/ant_lion_optimizer_memetico_modificado.cpp\"",
+  "file": "/home/macarse/Escritorio/Universidad/2º Cuatrimestre/MH/Practicas/Proyecto_Final/Código/ant_lion_optimizer_memetico_modificado.cpp"
+},
+{
+  "directory": "/home/macarse/Escritorio/Universidad/2º Cuatrimestre/MH/Practicas/Proyecto_Final/Código/build",
+  "command": "/bin/g++-9    -g   -o CMakeFiles/ant_lion_optimizer_modificado.dir/ant_lion_optimizer_modificado.cpp.o -c \"/home/macarse/Escritorio/Universidad/2º Cuatrimestre/MH/Practicas/Proyecto_Final/Código/ant_lion_optimizer_modificado.cpp\"",
+  "file": "/home/macarse/Escritorio/Universidad/2º Cuatrimestre/MH/Practicas/Proyecto_Final/Código/ant_lion_optimizer_modificado.cpp"
+},
+{
+  "directory": "/home/macarse/Escritorio/Universidad/2º Cuatrimestre/MH/Practicas/Proyecto_Final/Código/build",
   "command": "/bin/g++-9    -g   -o CMakeFiles/ant_lion_optimizer_memetico.dir/ant_lion_optimizer_memetico.cpp.o -c \"/home/macarse/Escritorio/Universidad/2º Cuatrimestre/MH/Practicas/Proyecto_Final/Código/ant_lion_optimizer_memetico.cpp\"",
   "file": "/home/macarse/Escritorio/Universidad/2º Cuatrimestre/MH/Practicas/Proyecto_Final/Código/ant_lion_optimizer_memetico.cpp"
 },
