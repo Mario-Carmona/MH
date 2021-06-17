@@ -417,10 +417,6 @@ void ant_lion_optimizer_memetico(VecDouble& sol, double& fitness, const VecDoubl
             elite = M_ant_lion.front().first;
             fitnessElite = M_ant_lion.front().second;
         }
-        else {
-            M_ant_lion.pop_front();
-            M_ant_lion.push_front(pair<vector<double>,double>(elite, fitnessElite));
-        }
     }
 
     sol = elite;

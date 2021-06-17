@@ -390,11 +390,6 @@ void ant_lion_optimizer(VecDouble& sol, double& fitness, const VecDouble& lb, co
             elite = M_ant_lion.front().first;
             fitnessElite = M_ant_lion.front().second;
         }
-        else {
-            // Si no se mejora se vuelve a introducir a la mejor ant lion en la lista
-            M_ant_lion.pop_front();
-            M_ant_lion.push_front(pair<vector<double>,double>(elite, fitnessElite));
-        }
 
         // Incremento de las iteraciones
         ++iteraciones;

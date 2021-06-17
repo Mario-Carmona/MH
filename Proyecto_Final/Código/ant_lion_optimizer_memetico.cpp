@@ -1,3 +1,15 @@
+/**
+ * @file ant_lion_optimizer_memetico.cpp
+ * @author Mario Carmona Segovia (mcs2000carmona@correo.ugr.es)
+ * @brief Implementación del algoritmo memético
+ * @version 0.1
+ * @date 2021-06-17
+ * 
+ * @copyright Copyright (c) 2021
+ * 
+ */
+
+
 extern "C" {
 #include "cec17.h"
 }
@@ -15,6 +27,7 @@ typedef std::vector<std::vector<double>> MatDouble;
 typedef std::list<std::pair<std::vector<double>,double>> ListMatDouble;
 
 using namespace std;
+
 
 void clip(vector<double> &sol, int lower, int upper) {
   for (auto &val : sol) {
@@ -114,6 +127,13 @@ void soliswets(vector<double> &sol, double &fitness, double delta, int maxevals,
 
 }
 
+/**
+ * @brief Metodo de selección de la ruleta
+ * 
+ * @param M_ant_lion Lista de ant lion
+ * @param gen Generador de número aleatorios
+ * @return ListMatDouble::iterator Puntero al ant lion seleccionado
+ */
 ListMatDouble::iterator RouletteWheel(ListMatDouble& M_ant_lion, mt19937& gen) {
     // Obtenemos el número de ant lion
     int numIndividuos = M_ant_lion.size();
@@ -155,6 +175,13 @@ ListMatDouble::iterator RouletteWheel(ListMatDouble& M_ant_lion, mt19937& gen) {
     return elegido;
 }
 
+/**
+ * @brief Función para obtener el valor de w
+ * 
+ * @param iteraciones Iteración actual
+ * @param maxIteraciones Número máximo de iteraciones
+ * @return int Valor de w
+ */
 int obtenerW(double iteraciones, double maxIteraciones) {
     int w = 1;
 
@@ -177,6 +204,12 @@ int obtenerW(double iteraciones, double maxIteraciones) {
     return w;
 }
 
+/**
+ * @brief Función para obtener el tamaño de la población a usar en el algoritmo
+ * 
+ * @param dim Dimensión de cada individuo
+ * @return int Tamaño de la población
+ */
 int obtenerTamanioPoblacion(int dim) {
     int tam = 30;
 
@@ -193,6 +226,14 @@ int obtenerTamanioPoblacion(int dim) {
     return tam;
 }
 
+/**
+ * @brief Función de comparación para las poblaciones
+ * 
+ * @param first Primer individuo
+ * @param second Segundo individuo
+ * @return true Si el primero tiene menor fitness que el segundo 
+ * @return false Si el segundo tiene menor fitness que el primero
+ */
 bool compare_menorFitness(const pair<vector<double>,double>& first, const pair<vector<double>,double>& second) {
     if(first.second <= second.second) {
         return true;
@@ -209,6 +250,13 @@ void generarFuncionConvergencia(double c, double d) {
     archivo.close();
 }
 
+/**
+ * @brief Función para obtener el valor de I
+ * 
+ * @param iteraciones Iteración actual
+ * @param maxIteraciones Número máximo de iteraciones
+ * @return double Valor de I
+ */
 double obtenerI(double iteraciones, double maxIteraciones) {
     double w = obtenerW(iteraciones, maxIteraciones);
     double I = pow(10, w) * (iteraciones/maxIteraciones);
@@ -216,6 +264,26 @@ double obtenerI(double iteraciones, double maxIteraciones) {
     return I;
 }
 
+/**
+ * @brief Función para actualizar la posición de las hormigas en cada iteración
+ * 
+ * @param M_ant Lista de hormigas
+ * @param M_ant_lion Lista de ant lion
+ * @param iteraciones Iteración actual
+ * @param maxIteraciones Número máximo de iteraciones
+ * @param lb Cota inferior del rango de movimiento
+ * @param ub Cota superior del rango de movimiento
+ * @param minValue Valor mínimo posible para las variables
+ * @param maxValue Valor máximo posible para las variables
+ * @param X Vector de movimientos aleatorios acumulados para cada variable
+ * @param min_X Vector del menor valor de movimiento aleatorio acumulado para cada variables
+ * @param max_X Vector del mayor valor de movimiento aleatorio acumulado para cada variables
+ * @param X_e Vector de movimientos aleatorios acumulados del mejor ant lion para cada variable
+ * @param min_X_e Vector del menor valor de movimiento aleatorio acumulado del mejor ant lion para cada variables
+ * @param max_X_e Vector del mayor valor de movimiento aleatorio acumulado del mejor ant lion para cada variables
+ * @param antLionSeleccionados Lista de los ant lion seleccionados para el movimiento de cada hormiga
+ * @param gen Generador de número aleatorios
+ */
 void actualizarAnt(ListMatDouble& M_ant, ListMatDouble& M_ant_lion, double iteraciones, double maxIteraciones, VecDouble& lb, VecDouble& ub, double minValue, double maxValue, vector<double>& X, vector<double>& min_X, vector<double>& max_X, vector<double>& X_e, vector<double>& min_X_e, vector<double>& max_X_e, vector<ListMatDouble::iterator>& antLionSeleccionados, mt19937& gen) {
     for(auto it = M_ant.begin(); it != M_ant.end(); ++it) {
         // Elegimos la ant lion que va a construir la trampa
@@ -224,6 +292,7 @@ void actualizarAnt(ListMatDouble& M_ant, ListMatDouble& M_ant_lion, double itera
 
         // Modificamos las distintas variables de la hormiga seleccionada
         for(int j = 0; j < it->first.size(); ++j) {
+            // Cálculo de las cotas del rango de movimiento
             double I = obtenerI(iteraciones, maxIteraciones);
             lb[j] = max(minValue,lb[j] / I);
             ub[j] = min(maxValue,ub[j] / I);
@@ -239,6 +308,7 @@ void actualizarAnt(ListMatDouble& M_ant, ListMatDouble& M_ant_lion, double itera
             // Fijamos la distribución
             uniform_real_distribution<> dis(0.0, 1.0);
 
+            // Aplicación de la influencia de la ant lion seleccionada en el rango de movimiento de la hormiga
             double probabilidad = dis(gen);
             if(probabilidad < 0.5) {
                 c_i = c_i + elegido->first[j];
@@ -249,6 +319,7 @@ void actualizarAnt(ListMatDouble& M_ant, ListMatDouble& M_ant_lion, double itera
                 c_e = -c_e + M_ant_lion.front().first[j];
             }
 
+            // Aplicación de la influencia de la mejor ant lion en el rango de movimiento de la hormiga
             probabilidad = dis(gen);
             if(probabilidad >= 0.5) {
                 d_i = d_i + elegido->first[j];
@@ -302,35 +373,62 @@ void actualizarAnt(ListMatDouble& M_ant, ListMatDouble& M_ant_lion, double itera
     }
 }
 
+/**
+ * @brief Función para actualizar la posición de las ant lions en cada iteración
+ * 
+ * @param M_ant Lista de hormigas
+ * @param antLionSeleccionados Lista de los ant lion seleccionados para el movimiento de cada hormiga
+ */
 void actualizarAntLion(ListMatDouble& M_ant, vector<ListMatDouble::iterator>& antLionSeleccionados) {
     auto it_ant = M_ant.begin();
     int i = 0;
     for(; it_ant != M_ant.end(); ++it_ant, ++i) {
+        // Si la hormiga tiene mejor fitness que la ant lion que fue seleccionada
+        // para su movimiento aleatorio, la ant lion seleccionada toma los valores de
+        // la hormiga
         if(it_ant->second < antLionSeleccionados[i]->second) {
             (*antLionSeleccionados[i]) = (*it_ant);
         }
     }
 }
 
+/**
+ * @brief Algoritmo memético the ant lion optmimizer
+ * 
+ * @param sol Mejor solución encontrada
+ * @param fitness Fitness de la mejor solución encontrada
+ * @param lb Vector de límites inferiores del valor de las variables
+ * @param ub Vector de límites superiores del valor de las variables
+ * @param gen Generador de números aleatorios
+ */
 void ant_lion_optimizer_memetico(VecDouble& sol, double& fitness, VecDouble& lb, VecDouble& ub, mt19937& gen) {
+    // Fijar distribución para la generación de valores para la creación de los individuos
     std::uniform_real_distribution<> distri_limites(lb[0],ub[0]);
     
+    // Obtener el tamaño de la población que depende de la dimensión de los individuos
     int tamPoblacion = obtenerTamanioPoblacion(sol.size());
 
     int dim = sol.size();
 
+    // Número máximo de evaluaciones
     int evalucionesTotal = 10000 * dim;
+    // Número de evaluaciones actual
     int evaluaciones = 0;
 
+    // Intensidad de la búsqueda local
     int intendidad_BL = 500;
+    // Probabilidad de realizar búsqueda local en un individuo
     double probabilidad = 0.1;
     double delta = 0.2;
+    // Número de generaciones inicial
     int generaciones = 0;
+    // Número máximo de generaciones consecutivas sin realizar BL
     int max_generaciones = 20;
 
+    // Número de iteraciones actual
     int iteraciones = 0;
+    // Número máximo de iteraciones
     int maxIteraciones = (double)evalucionesTotal/ ((double)tamPoblacion + intendidad_BL/max_generaciones);
-    double incremento = ub[0]/(double)(maxIteraciones+1);
     
 
     // Inicialización de la población
@@ -349,6 +447,7 @@ void ant_lion_optimizer_memetico(VecDouble& sol, double& fitness, VecDouble& lb,
         }
     }
 
+    // Cálculo de los fitness de ambas poblaciones
     auto it_ant = M_ant.begin();
     auto it_ant_lion = M_ant_lion.begin();
     for(int i = 0; i < M_ant.size(); ++i, ++it_ant, ++it_ant_lion) {
@@ -358,27 +457,35 @@ void ant_lion_optimizer_memetico(VecDouble& sol, double& fitness, VecDouble& lb,
         ++evaluaciones;
     }
 
+    // Se ordenan de menor a mayor fitness las ant lion
     M_ant_lion.sort(compare_menorFitness);
 
+    // Obtener la mejor ant lion
     VecDouble elite = M_ant_lion.front().first;
+    // Obtener el fitness de la mejor ant lion
     double fitnessElite = M_ant_lion.front().second;
 
+    // Inicialización del vector de movimientos aleatorios acumulados de cada variable
     vector<double> X(dim,0.0);
     vector<double> min_X = X;
     vector<double> max_X = X;
 
+    // Inicialización del vector de movimientos aleatorios acumulados de cada variable
+    // respecto del mejor ant lion
     vector<double> X_e(dim,0.0);
     vector<double> min_X_e = X_e;
     vector<double> max_X_e = X_e;
 
+    // Cálculo del menor valor posible para las variables
     double minValue = lb[0];
+    // Cálculo del mayor valor posible para las variables
     double maxValue = ub[0];
 
     while(evaluaciones < evalucionesTotal) {
         vector<ListMatDouble::iterator> antLionSeleccionados;
 
+        // Actualización de la posición de las hormigas
         actualizarAnt(M_ant, M_ant_lion, iteraciones, maxIteraciones, lb, ub, minValue, maxValue, X, min_X, max_X, X_e, min_X_e, max_X_e, antLionSeleccionados, gen);
-
 
         // Calcular fitness de todas las hormigas
         for(auto it = M_ant.begin(); it != M_ant.end(); ++it) {
@@ -390,14 +497,17 @@ void ant_lion_optimizer_memetico(VecDouble& sol, double& fitness, VecDouble& lb,
             }
         }
 
-
+        // Actualización de la posición de las ant lion
         actualizarAntLion(M_ant, antLionSeleccionados);
 
+        // Incremento de las generaciones
         ++generaciones;
+        // Incremento de las iteraciones
         ++iteraciones;
 
+        // Ejecución de la BL
         if(generaciones == max_generaciones) {
-            
+            // Cálculo del número de individuos que van a realizar la BL
             int numAnts = M_ant_lion.size() * probabilidad;
 
             std::uniform_int_distribution<> distri(0,M_ant_lion.size()-1);
@@ -408,7 +518,9 @@ void ant_lion_optimizer_memetico(VecDouble& sol, double& fitness, VecDouble& lb,
                     ++it;
                 }
                 
+                // Cálculo del número máximo de evaluaciones a realizar por la BL
                 int max_evals = min(intendidad_BL, (evalucionesTotal-evaluaciones));
+                // Ejecución de la BL
                 soliswets(it->first, it->second, delta, max_evals, lb[0], ub[0], gen);
 
                 evaluaciones += max_evals;
@@ -417,19 +529,21 @@ void ant_lion_optimizer_memetico(VecDouble& sol, double& fitness, VecDouble& lb,
                 }
             }
 
+            // Inicialización del número de generaciones
             generaciones = 0;
         }
 
-
+        // Se ordenan de menor a mayor fitness las ant lion
         M_ant_lion.sort(compare_menorFitness);
 
-
+        // Actualización del mejor ant lion y de su fitness
         if(M_ant_lion.front().second < fitnessElite) {
             elite = M_ant_lion.front().first;
             fitnessElite = M_ant_lion.front().second;
         }
     }
 
+    // Devolución de la mejor solución encontrada
     sol = elite;
     fitness = fitnessElite;
 }
