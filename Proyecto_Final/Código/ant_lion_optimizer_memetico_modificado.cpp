@@ -188,9 +188,6 @@ int obtenerTamanioPoblacion(int dim) {
     case 30:
         tam += 10;
         break;
-    case 50:
-        tam += 20;
-        break;
     }
 
     return tam;
@@ -545,22 +542,24 @@ int main() {
     int seed = 1;
     mt19937 gen(seed);
 
-    int dim = 10;
+    vector<int> dimensiones = {10,30};
     int numRepeticiones = 10;
 
-    VecDouble lb(dim,-100.0);
-    VecDouble ub(dim, 100.0);
+    for(auto dim : dimensiones) {
+        VecDouble lb(dim,-100.0);
+        VecDouble ub(dim, 100.0);
 
-    for (int funcid = 1; funcid <= 30; funcid++) {
-        for(int i = 0; i < numRepeticiones; ++i) {
-            vector<double> sol(dim);
-            double fitness;
+        for (int funcid = 1; funcid <= 30; funcid++) {
+            for(int i = 0; i < numRepeticiones; ++i) {
+                vector<double> sol(dim);
+                double fitness;
 
-            cec17_init("ant_lion_memetico_modificado", funcid, dim);
+                cec17_init("ant_lion_memetico_modificado", funcid, dim);
 
-            ant_lion_optimizer_memetico(sol, fitness, lb, ub, gen);
+                ant_lion_optimizer_memetico(sol, fitness, lb, ub, gen);
 
-            cout <<"Fitness[F" <<funcid <<"]: " << scientific <<cec17_error(fitness) <<endl;
+                cout <<"Fitness[F" <<funcid <<"]: " << scientific <<cec17_error(fitness) <<endl;
+            }
         }
     }
 }
