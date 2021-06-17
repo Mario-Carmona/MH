@@ -34,7 +34,7 @@ using namespace std;
  * 
  * @param M_ant_lion Lista de ant lion
  * @param gen Generador de número aleatorios
- * @return ListMatDouble::const_iterator Puntero al ant lion seleccionado
+ * @return ListMatDouble::iterator Puntero al ant lion seleccionado
  */
 ListMatDouble::iterator RouletteWheel(ListMatDouble& M_ant_lion, mt19937& gen) {
     // Obtenemos el número de ant lion
@@ -152,6 +152,13 @@ void generarFuncionConvergencia(double c, double d) {
     archivo.close();
 }
 
+/**
+ * @brief Función para obtener el valor de I
+ * 
+ * @param iteraciones Iteración actual
+ * @param maxIteraciones Número máximo de iteraciones
+ * @return double Valor de I
+ */
 double obtenerI(double iteraciones, double maxIteraciones) {
     double w = obtenerW(iteraciones, maxIteraciones);
     double I = pow(10, w) * (iteraciones/maxIteraciones);
@@ -165,15 +172,18 @@ double obtenerI(double iteraciones, double maxIteraciones) {
  * @param M_ant Lista de hormigas
  * @param M_ant_lion Lista de ant lion
  * @param iteraciones Iteración actual
- * @param incremento Incremento ó decremento del rango del movimiento por iteración
+ * @param maxIteraciones Número máximo de iteraciones
  * @param lb Cota inferior del rango de movimiento
  * @param ub Cota superior del rango de movimiento
+ * @param minValue Valor mínimo posible para las variables
+ * @param maxValue Valor máximo posible para las variables
  * @param X Vector de movimientos aleatorios acumulados para cada variable
  * @param min_X Vector del menor valor de movimiento aleatorio acumulado para cada variables
  * @param max_X Vector del mayor valor de movimiento aleatorio acumulado para cada variables
  * @param X_e Vector de movimientos aleatorios acumulados del mejor ant lion para cada variable
  * @param min_X_e Vector del menor valor de movimiento aleatorio acumulado del mejor ant lion para cada variables
  * @param max_X_e Vector del mayor valor de movimiento aleatorio acumulado del mejor ant lion para cada variables
+ * @param antLionSeleccionados Lista de los ant lion seleccionados para el movimiento de cada hormiga
  * @param gen Generador de número aleatorios
  */
 void actualizarAnt(ListMatDouble& M_ant, ListMatDouble& M_ant_lion, double iteraciones, double maxIteraciones, VecDouble& lb, VecDouble& ub, double minValue, double maxValue, vector<double>& X, vector<double>& min_X, vector<double>& max_X, vector<double>& X_e, vector<double>& min_X_e, vector<double>& max_X_e, vector<ListMatDouble::iterator>& antLionSeleccionados, mt19937& gen) {
@@ -184,6 +194,7 @@ void actualizarAnt(ListMatDouble& M_ant, ListMatDouble& M_ant_lion, double itera
 
         // Modificamos las distintas variables de la hormiga seleccionada
         for(int j = 0; j < it->first.size(); ++j) {
+            // Cálculo de las cotas del rango de movimiento
             double I = obtenerI(iteraciones, maxIteraciones);
             lb[j] = max(minValue,lb[j] / I);
             ub[j] = min(maxValue,ub[j] / I);
@@ -199,6 +210,7 @@ void actualizarAnt(ListMatDouble& M_ant, ListMatDouble& M_ant_lion, double itera
             // Fijamos la distribución
             uniform_real_distribution<> dis(0.0, 1.0);
 
+            // Aplicación de la influencia de la ant lion seleccionada en el rango de movimiento de la hormiga
             double probabilidad = dis(gen);
             if(probabilidad < 0.5) {
                 c_i = c_i + elegido->first[j];
@@ -209,6 +221,7 @@ void actualizarAnt(ListMatDouble& M_ant, ListMatDouble& M_ant_lion, double itera
                 c_e = -c_e + M_ant_lion.front().first[j];
             }
 
+            // Aplicación de la influencia de la mejor ant lion en el rango de movimiento de la hormiga
             probabilidad = dis(gen);
             if(probabilidad >= 0.5) {
                 d_i = d_i + elegido->first[j];
@@ -266,12 +279,15 @@ void actualizarAnt(ListMatDouble& M_ant, ListMatDouble& M_ant_lion, double itera
  * @brief Función para actualizar la posición de las ant lions en cada iteración
  * 
  * @param M_ant Lista de hormigas
- * @param M_ant_lion Lista de ant lion
+ * @param antLionSeleccionados Lista de los ant lion seleccionados para el movimiento de cada hormiga
  */
 void actualizarAntLion(ListMatDouble& M_ant, vector<ListMatDouble::iterator>& antLionSeleccionados) {
     auto it_ant = M_ant.begin();
     int i = 0;
     for(; it_ant != M_ant.end(); ++it_ant, ++i) {
+        // Si la hormiga tiene mejor fitness que la ant lion que fue seleccionada
+        // para su movimiento aleatorio, la ant lion seleccionada toma los valores de
+        // la hormiga
         if(it_ant->second < antLionSeleccionados[i]->second) {
             (*antLionSeleccionados[i]) = (*it_ant);
         }
@@ -352,7 +368,9 @@ void ant_lion_optimizer(VecDouble& sol, double& fitness, VecDouble& lb, VecDoubl
     vector<double> min_X_e = X_e;
     vector<double> max_X_e = X_e;
 
+    // Cálculo del menor valor posible para las variables
     double minValue = lb[0];
+    // Cálculo del mayor valor posible para las variables
     double maxValue = ub[0];
 
     while(evaluaciones < evalucionesTotal) {
@@ -371,8 +389,7 @@ void ant_lion_optimizer(VecDouble& sol, double& fitness, VecDouble& lb, VecDoubl
             }
         }
 
-        // Actualización de la posición de las ant lion, para esta actualización
-        // deben estar ambas poblaciones ordenas de menor a mayor fitness
+        // Actualización de la posición de las ant lion
         actualizarAntLion(M_ant, antLionSeleccionados);
 
         // Se ordenan de menor a mayor fitness las ant lion

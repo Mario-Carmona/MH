@@ -1,7 +1,7 @@
 /**
- * @file ant_lion_optimizer.cpp
+ * @file ant_lion_optimizer_modificado.cpp
  * @author Mario Carmona Segovia (mcs2000carmona@correo.ugr.es)
- * @brief Implementación del algoritmo evolutivo
+ * @brief Implementación del algoritmo evolutivo modificado
  * @version 0.1
  * @date 2021-06-15
  * 
@@ -158,6 +158,7 @@ void actualizarAnt(ListMatDouble& M_ant, const ListMatDouble& M_ant_lion, int it
             // Fijamos la distribución
             uniform_real_distribution<> dis(0.0, 1.0);
 
+            // Aplicación de la influencia de la ant lion seleccionada en el rango de movimiento de la hormiga
             double probabilidad = dis(gen);
             if(probabilidad < 0.5) {
                 c_i = c_i + elegido->first[j];
@@ -168,6 +169,7 @@ void actualizarAnt(ListMatDouble& M_ant, const ListMatDouble& M_ant_lion, int it
                 c_e = -c_e + M_ant_lion.front().first[j];
             }
 
+            // Aplicación de la influencia de la mejor ant lion en el rango de movimiento de la hormiga
             probabilidad = dis(gen);
             if(probabilidad >= 0.5) {
                 d_i = d_i + elegido->first[j];
@@ -389,6 +391,7 @@ void ant_lion_optimizer(VecDouble& sol, double& fitness, const VecDouble& lb, co
             fitnessElite = M_ant_lion.front().second;
         }
         else {
+            // Si no se mejora se vuelve a introducir a la mejor ant lion en la lista
             M_ant_lion.pop_front();
             M_ant_lion.push_front(pair<vector<double>,double>(elite, fitnessElite));
         }
