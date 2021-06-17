@@ -152,28 +152,6 @@ ListMatDouble::const_iterator RouletteWheel(const ListMatDouble& M_ant_lion, mt1
     return elegido;
 }
 
-int obtenerW(double iteraciones, double maxIteraciones) {
-    int w = 1;
-
-    if(iteraciones > 0.1*maxIteraciones) {
-        ++w;
-    }
-    if(iteraciones > 0.5*maxIteraciones) {
-        ++w;
-    }
-    if(iteraciones > 0.75*maxIteraciones) {
-        ++w;
-    }
-    if(iteraciones > 0.9*maxIteraciones) {
-        ++w;
-    }
-    if(iteraciones > 0.95*maxIteraciones) {
-        ++w;
-    }
-
-    return w;
-}
-
 int obtenerTamanioPoblacion(int dim) {
     int tam = 30;
 
@@ -219,8 +197,28 @@ void actualizarAnt(ListMatDouble& M_ant, const ListMatDouble& M_ant_lion, int it
 
             uniform_real_distribution<> dis(0.0, 1.0);
 
-            // Actualizar X
             double probabilidad = dis(gen);
+            if(probabilidad < 0.5) {
+                c_i = c_i + elegido->first[j];
+                c_e = c_e + M_ant_lion.front().first[j];
+            }
+            else {
+                c_i = -c_i + elegido->first[j];
+                c_e = -c_e + M_ant_lion.front().first[j];
+            }
+
+            probabilidad = dis(gen);
+            if(probabilidad >= 0.5) {
+                d_i = d_i + elegido->first[j];
+                d_e = d_e + M_ant_lion.front().first[j];
+            }
+            else {
+                d_i = -d_i + elegido->first[j];
+                d_e = -d_e + M_ant_lion.front().first[j];
+            }
+
+            // Actualizar X , min_X y max_X
+            probabilidad = dis(gen);
             double valor = (probabilidad > 0.5) ? 1.0 : 0.0;
             X[j] = X[j] + (2.0*valor - 1.0);
             if(min_X[j] > X[j]) {
@@ -391,8 +389,14 @@ void ant_lion_optimizer_memetico(VecDouble& sol, double& fitness, const VecDoubl
             
             int numAnts = M_ant_lion.size() * probabilidad;
 
-            auto it = M_ant_lion.begin();
-            for(int i = 0; i < numAnts; ++i, ++it) {
+            std::uniform_int_distribution<> distri(0,M_ant_lion.size()-1);
+            for(int i = 0; i < numAnts; ++i) {
+                auto it = M_ant_lion.begin();
+                int random = distri(gen);
+                for(int j = 0; j < random; ++j) {
+                    ++it;
+                }
+                
                 int max_evals = min(intendidad_BL, (evalucionesTotal-evaluaciones));
                 soliswets(it->first, it->second, delta, max_evals, lb[0], ub[0], gen);
 

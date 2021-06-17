@@ -78,35 +78,6 @@ ListMatDouble::const_iterator RouletteWheel(const ListMatDouble& M_ant_lion, mt1
 }
 
 /**
- * @brief Función para obtener el valor de w
- * 
- * @param iteraciones Iteración actual
- * @param maxIteraciones Número máximo de iteraciones
- * @return int Valor de w
- */
-int obtenerW(double iteraciones, double maxIteraciones) {
-    int w = 1;
-
-    if(iteraciones > 0.1*maxIteraciones) {
-        ++w;
-    }
-    if(iteraciones > 0.5*maxIteraciones) {
-        ++w;
-    }
-    if(iteraciones > 0.75*maxIteraciones) {
-        ++w;
-    }
-    if(iteraciones > 0.9*maxIteraciones) {
-        ++w;
-    }
-    if(iteraciones > 0.95*maxIteraciones) {
-        ++w;
-    }
-
-    return w;
-}
-
-/**
  * @brief Función para obtener el tamaño de la población a usar en el algoritmo
  * 
  * @param dim Dimensión de cada individuo
@@ -187,8 +158,28 @@ void actualizarAnt(ListMatDouble& M_ant, const ListMatDouble& M_ant_lion, int it
             // Fijamos la distribución
             uniform_real_distribution<> dis(0.0, 1.0);
 
-            // Actualizar X , min_X y max_X
             double probabilidad = dis(gen);
+            if(probabilidad < 0.5) {
+                c_i = c_i + elegido->first[j];
+                c_e = c_e + M_ant_lion.front().first[j];
+            }
+            else {
+                c_i = -c_i + elegido->first[j];
+                c_e = -c_e + M_ant_lion.front().first[j];
+            }
+
+            probabilidad = dis(gen);
+            if(probabilidad >= 0.5) {
+                d_i = d_i + elegido->first[j];
+                d_e = d_e + M_ant_lion.front().first[j];
+            }
+            else {
+                d_i = -d_i + elegido->first[j];
+                d_e = -d_e + M_ant_lion.front().first[j];
+            }
+
+            // Actualizar X , min_X y max_X
+            probabilidad = dis(gen);
             double valor = (probabilidad > 0.5) ? 1.0 : 0.0;
             X[j] = X[j] + (2.0*valor - 1.0);
             if(min_X[j] > X[j]) {
