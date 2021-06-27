@@ -540,8 +540,7 @@ void ant_lion_optimizer_memetico(VecDouble& sol, double& fitness, const VecDoubl
 
 int main() {
     int seed = 1;
-    mt19937 gen(seed);
-
+    
     vector<int> dimensiones = {10,30};
     int numRepeticiones = 10;
 
@@ -551,6 +550,8 @@ int main() {
 
         for (int funcid = 1; funcid <= 30; funcid++) {
             for(int i = 0; i < numRepeticiones; ++i) {
+                mt19937 gen(seed);
+
                 vector<double> sol(dim);
                 double fitness;
 
