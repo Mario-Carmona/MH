@@ -142,13 +142,6 @@ bool compare_menorFitness(const pair<vector<double>,double>& first, const pair<v
     }
 }
 
-void generarFuncionConvergencia(double c, double d) {
-    ofstream archivo;
-    archivo.open("func_convergencia.csv", ios::app);
-    archivo << max(-100.0,c) << "," << min(100.0,d) << ",\n";
-    archivo.close();
-}
-
 /**
  * @brief Función para obtener el valor de I
  * 
