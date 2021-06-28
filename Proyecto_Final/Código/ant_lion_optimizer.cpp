@@ -418,9 +418,8 @@ int main() {
         VecDouble ub(dim, 100.0);
 
         for (int funcid = 1; funcid <= 30; funcid++) {
+            mt19937 gen(seed);
             for(int i = 0; i < numRepeticiones; ++i) {
-                mt19937 gen(seed);
-
                 vector<double> sol(dim);
                 double fitness;
 
