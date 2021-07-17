@@ -1,0 +1,42 @@
+Práctica 1:
+
+- Bien la memoria.
+
+- Muy claros los seudocódigos comunes. Los de los algoritmos de BL y Greedy tienen muy poco detalle, por lo que es dificil validar el esquema a partir de ellos.
+
+- La BL no es realmente inteligente como se pidió en el Seminario, se supone que debería de recorrer primero las posiciones con peor contribución.
+
+- Los resultados son peores de lo esperado, la BL debería de dar mejores resultados (por no ser interesante). El greedy es demasiado lento, aunque cada paso es algo más lento, sólo se realizan m iteraciones, lo cual lo debería de hacer mucho más rápido. Los resultados si parecen coherentes.
+
+- Muy bien el análisis sobre los datos de referencia, incluyendo gráfica.
+
+- Implementa tanto la BL del mejor como las del primero mejor, trabajo adicional que compensa en calificacíon el problema de la BL.
+ 
+- Compila y se ejecuta bien.
+
+
+Práctica 2:
+
+- Muy buen seudocódigo.
+
+- El reemplazo en AGG es erróneo. Únicamente debería de validar si no está el anterior mejor y meterlo, y reemplazar la población nueva a la anterior, pero no es lo que hace, combina ambas (la nueva y la antigua) y te quedas con las mejores, no es así como funciona. Ese criterio en el AGE aunque poco eficiente (bastaría ordenar los 2 peores y los nuevos, no todos), si es muy similar a lo pedido.
+
+- Los resultados parecen coherentes, excepto el AGE, que da resultados mucho más malos que el AGG.
+ 
+- ¿El AGG-uniforme no tarda demasiado? Debería de ser bastante similar a AGG-posición, y hay muchísima diferencia en tiempo.
+
+- Bien el análisis de operadores, de tiempos, y de meméticos entre sí.
+
+
+Práctica 3:
+
+- Un detalle, debes comprobar en ES si la temperatura inicial es mayor que la final. Lo haces dentro del esquema de enfriamiento lo cual no es lo suyo.
+
+- El resto de esquemas (BMB, ILS, ILS-ES) sí son correctos.
+
+- Creas un ES y un ES inteligente  (criterio de la BL).
+
+- Los resultados del ES son demasiado malos, debe de haber algún error de implementación. El resto de resultados son coherentes.
+
+- Bien el análisis con las gráficas, aunque echo en falta un análisis más directo a partir de las tablas resúmenes.
+
