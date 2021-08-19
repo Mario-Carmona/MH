@@ -12,6 +12,8 @@ El objetivo de esta práctica es estudiar el funcionamiento de las Técnicas de 
 - **Algoritmo Greedy básico**
 - **Algoritmo de Búsqueda Local (BL)**
 
+Para más información en la [memoria de la Práctica 1](./Practica1/Memoria.pdf).
+
 ### Algoritmo Greedy
 
 El algoritmo se basa en la heurística de ir seleccionando los elementos más lejanos a los previamente seleccionados.
