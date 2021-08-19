@@ -31,6 +31,8 @@ El objetivo de esta práctica es estudiar el funcionamiento de las Técnicas de 
     - Dos variantes generacionales estacionarias (AGE)
 - **Algoritmos meméticos**
 
+Para más información en la [memoria de la Práctica 2](./Practica2/Memoria.pdf).
+
 ### Algoritmo genético
 
 Este algoritmo presenta los siguientes componentes:
@@ -66,6 +68,10 @@ El objetivo de esta práctica es estudiar el funcionamiento de las Técnicas de 
 - **Búsqueda Local Reiterada (ILS)**
 - **Hibridación de ILS y ES (ILS-ES)**
 
+Para más información en la [memoria de la Práctica 3](./Practica3/Memoria.pdf).
+
 ## [Práctica Final: Implementación de una metaheurística bioinspirada](./Proyecto_Final)
 
 En mi caso he realizado la implementación de la metaheurística Ant Lion, basada en el compotamiento de las hormigas león durante la captura de las hormigas.
+
+Para más información en la [memoria de la Práctica Final](./Proyecto_Final/Memoria/Memoria.pdf).
